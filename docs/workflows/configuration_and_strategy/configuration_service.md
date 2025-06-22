@@ -914,164 +914,104 @@ enum UpdateType {
 #### Configuration
 Represents a configuration setting with versioning.
 
-```java
-@Entity
-@Table(name = "configurations")
-public class Configuration {
-    @Id
-    private String id;
-    
-    @Column(nullable = false)
-    private String key;
-    
-    @Column(nullable = false)
-    private String application;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Environment environment;
-    
-    private String description;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ValueType valueType;
-    
-    @Column(columnDefinition = "text", nullable = false)
-    private String value;
-    
-    @Column(columnDefinition = "text")
-    private String schema;
-    
-    @ElementCollection
-    @CollectionTable(name = "configuration_tags", joinColumns = @JoinColumn(name = "configuration_id"))
-    @Column(name = "tag")
-    private Set<String> tags = new HashSet<>();
-    
-    @Version
-    private Integer version;
-    
-    private String createdBy;
-    
-    @CreatedDate
-    private Instant createdAt;
-    
-    private String updatedBy;
-    
-    @LastModifiedDate
-    private Instant updatedAt;
-    
-    @OneToMany(mappedBy = "configuration", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("version DESC")
-    private List<ConfigurationVersion> versions = new ArrayList<>();
+```pseudo
+// Enumerations
+enum Environment {
+    DEVELOPMENT,
+    TESTING,
+    STAGING,
+    PRODUCTION
+}
+
+enum ValueType {
+    STRING,
+    INTEGER,
+    FLOAT,
+    BOOLEAN,
+    JSON,
+    ARRAY
+}
+
+// Data Models
+struct Configuration {
+    id: String
+    key: String
+    application: String
+    environment: Environment
+    description: String
+    value_type: ValueType
+    value: String
+    schema: String
+    tags: Set<String>
+    version: Integer
+    created_by: String
+    created_at: DateTime
+    updated_by: String
+    updated_at: DateTime
+    versions: List<ConfigurationVersion>
 }
 ```
 
 #### ConfigurationVersion
 Represents a specific version of a configuration.
 
-```java
-@Entity
-@Table(name = "configuration_versions")
-public class ConfigurationVersion {
-    @Id
-    private String id;
-    
-    @ManyToOne
-    @JoinColumn(name = "configuration_id", nullable = false)
-    private Configuration configuration;
-    
-    @Column(nullable = false)
-    private Integer version;
-    
-    @Column(columnDefinition = "text", nullable = false)
-    private String value;
-    
-    private String createdBy;
-    
-    @CreatedDate
-    private Instant createdAt;
-    
-    private String changeDescription;
+```pseudo
+struct ConfigurationVersion {
+    id: String
+    configuration_id: String
+    version: Integer
+    value: String
+    created_by: String
+    created_at: DateTime
+    change_description: String
 }
 ```
 
 #### FeatureFlag
 Represents a feature flag for controlled feature rollout.
 
-```java
-@Entity
-@Table(name = "feature_flags")
-public class FeatureFlag {
-    @Id
-    private String id;
-    
-    @Column(nullable = false)
-    private String key;
-    
-    @Column(nullable = false)
-    private String application;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Environment environment;
-    
-    private String description;
-    
-    @Column(nullable = false)
-    private boolean enabled;
-    
-    @OneToMany(mappedBy = "featureFlag", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FeatureFlagRule> rules = new ArrayList<>();
-    
-    @Column(columnDefinition = "jsonb")
-    private String value;
-    
-    @ElementCollection
-    @CollectionTable(name = "feature_flag_tags", joinColumns = @JoinColumn(name = "feature_flag_id"))
-    @Column(name = "tag")
-    private Set<String> tags = new HashSet<>();
-    
-    @Version
-    private Integer version;
-    
-    private String createdBy;
-    
-    @CreatedDate
-    private Instant createdAt;
-    
-    private String updatedBy;
-    
-    @LastModifiedDate
-    private Instant updatedAt;
+```pseudo
+struct FeatureFlag {
+    id: String
+    key: String
+    application: String
+    environment: Environment
+    description: String
+    enabled: Boolean
+    rules: List<FeatureFlagRule>
+    value: String
+    tags: Set<String>
+    version: Integer
+    created_by: String
+    created_at: DateTime
+    updated_by: String
+    updated_at: DateTime
 }
 ```
 
 #### FeatureFlagRule
 Represents a targeting rule for a feature flag.
 
-```java
-@Entity
-@Table(name = "feature_flag_rules")
-public class FeatureFlagRule {
-    @Id
-    private String id;
-    
-    @ManyToOne
-    @JoinColumn(name = "feature_flag_id", nullable = false)
-    private FeatureFlag featureFlag;
-    
-    private String attribute;
-    
-    @Enumerated(EnumType.STRING)
-    private RuleOperator operator;
-    
-    @ElementCollection
-    @CollectionTable(name = "feature_flag_rule_values", joinColumns = @JoinColumn(name = "rule_id"))
-    @Column(name = "value")
-    private List<String> values = new ArrayList<>();
-    
-    private Integer percentage;
+```pseudo
+enum RuleOperator {
+    EQUALS,
+    NOT_EQUALS,
+    IN,
+    NOT_IN,
+    CONTAINS,
+    STARTS_WITH,
+    ENDS_WITH,
+    GREATER_THAN,
+    LESS_THAN
+}
+
+struct FeatureFlagRule {
+    id: String
+    feature_flag_id: String
+    attribute: String
+    operator: RuleOperator
+    values: List<String>
+    percentage: Integer
 }
 ```
 
@@ -1080,171 +1020,198 @@ public class FeatureFlagRule {
 ### Write Model (Command Side)
 
 #### configurations Table
-```sql
-CREATE TABLE configurations (
-    id VARCHAR(36) PRIMARY KEY,
-    key VARCHAR(255) NOT NULL,
-    application VARCHAR(100) NOT NULL,
-    environment VARCHAR(20) NOT NULL,
-    description TEXT,
-    value_type VARCHAR(20) NOT NULL,
-    value TEXT NOT NULL,
-    schema TEXT,
-    version INTEGER NOT NULL DEFAULT 1,
-    created_by VARCHAR(100),
-    created_at TIMESTAMP NOT NULL,
-    updated_by VARCHAR(100),
-    updated_at TIMESTAMP NOT NULL,
-    
-    CONSTRAINT uk_config_key_app_env UNIQUE (key, application, environment)
-);
+```pseudo
+Table configurations {
+    id: String (primary key, max_length: 36)
+    key: String (required, max_length: 255)
+    application: String (required, max_length: 100)
+    environment: String (required, max_length: 20)
+    description: String
+    value_type: String (required, max_length: 20)
+    value: String (required)
+    schema: String
+    version: Integer (required, default: 1)
+    created_by: String (max_length: 100)
+    created_at: Timestamp (required)
+    updated_by: String (max_length: 100)
+    updated_at: Timestamp (required)
 
-CREATE INDEX idx_configurations_app_env ON configurations(application, environment);
-CREATE INDEX idx_configurations_key ON configurations(key);
+    // Constraints
+    uk_config_key_app_env: (key, application, environment)
+}
+
+// Indexes
+idx_configurations_app_env: (application, environment)
+idx_configurations_key: (key)
 ```
 
 #### configuration_tags Table
-```sql
-CREATE TABLE configuration_tags (
-    configuration_id VARCHAR(36) NOT NULL,
-    tag VARCHAR(50) NOT NULL,
-    
-    PRIMARY KEY (configuration_id, tag),
-    CONSTRAINT fk_config_tag FOREIGN KEY (configuration_id) REFERENCES configurations(id) ON DELETE CASCADE
-);
+```pseudo
+Table configuration_tags {
+    configuration_id: String (required, max_length: 36, foreign_key: configurations.id)
+    tag: String (required, max_length: 50)
 
-CREATE INDEX idx_configuration_tags_tag ON configuration_tags(tag);
+    // Primary Key
+    primary_key: (configuration_id, tag)
+
+    // Foreign Key Constraints
+    fk_config_tag: configuration_id -> configurations.id (on_delete: cascade)
+}
+
+// Indexes
+idx_configuration_tags_tag: (tag)
 ```
 
 #### configuration_versions Table
-```sql
-CREATE TABLE configuration_versions (
-    id VARCHAR(36) PRIMARY KEY,
-    configuration_id VARCHAR(36) NOT NULL,
-    version INTEGER NOT NULL,
-    value TEXT NOT NULL,
-    created_by VARCHAR(100),
-    created_at TIMESTAMP NOT NULL,
-    change_description TEXT,
-    
-    CONSTRAINT uk_config_version UNIQUE (configuration_id, version),
-    CONSTRAINT fk_config_version FOREIGN KEY (configuration_id) REFERENCES configurations(id) ON DELETE CASCADE
-);
+```pseudo
+Table configuration_versions {
+    id: String (primary key, max_length: 36)
+    configuration_id: String (required, max_length: 36, foreign_key: configurations.id)
+    version: Integer (required)
+    value: String (required)
+    created_by: String (max_length: 100)
+    created_at: Timestamp (required)
+    change_description: String
 
-CREATE INDEX idx_configuration_versions_config_id ON configuration_versions(configuration_id);
+    // Constraints
+    uk_config_version: (configuration_id, version)
+
+    // Foreign Key Constraints
+    fk_config_version: configuration_id -> configurations.id (on_delete: cascade)
+}
+
+// Indexes
+idx_configuration_versions_config_id: (configuration_id)
 ```
 
 #### feature_flags Table
-```sql
-CREATE TABLE feature_flags (
-    id VARCHAR(36) PRIMARY KEY,
-    key VARCHAR(255) NOT NULL,
-    application VARCHAR(100) NOT NULL,
-    environment VARCHAR(20) NOT NULL,
-    description TEXT,
-    enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    value JSONB,
-    version INTEGER NOT NULL DEFAULT 1,
-    created_by VARCHAR(100),
-    created_at TIMESTAMP NOT NULL,
-    updated_by VARCHAR(100),
-    updated_at TIMESTAMP NOT NULL,
-    
-    CONSTRAINT uk_feature_flag_key_app_env UNIQUE (key, application, environment)
-);
+```pseudo
+Table feature_flags {
+    id: String (primary key, max_length: 36)
+    key: String (required, max_length: 255)
+    application: String (required, max_length: 100)
+    environment: String (required, max_length: 20)
+    description: String
+    enabled: Boolean (required, default: false)
+    value: JSON
+    version: Integer (required, default: 1)
+    created_by: String (max_length: 100)
+    created_at: Timestamp (required)
+    updated_by: String (max_length: 100)
+    updated_at: Timestamp (required)
 
-CREATE INDEX idx_feature_flags_app_env ON feature_flags(application, environment);
-CREATE INDEX idx_feature_flags_key ON feature_flags(key);
+    // Constraints
+    uk_feature_flag_key_app_env: (key, application, environment)
+}
+
+// Indexes
+idx_feature_flags_app_env: (application, environment)
+idx_feature_flags_key: (key)
 ```
 
 #### feature_flag_tags Table
-```sql
-CREATE TABLE feature_flag_tags (
-    feature_flag_id VARCHAR(36) NOT NULL,
-    tag VARCHAR(50) NOT NULL,
-    
-    PRIMARY KEY (feature_flag_id, tag),
-    CONSTRAINT fk_feature_flag_tag FOREIGN KEY (feature_flag_id) REFERENCES feature_flags(id) ON DELETE CASCADE
-);
+```pseudo
+Table feature_flag_tags {
+    feature_flag_id: String (required, max_length: 36, foreign_key: feature_flags.id)
+    tag: String (required, max_length: 50)
 
-CREATE INDEX idx_feature_flag_tags_tag ON feature_flag_tags(tag);
+    // Primary Key
+    primary_key: (feature_flag_id, tag)
+
+    // Foreign Key Constraints
+    fk_feature_flag_tag: feature_flag_id -> feature_flags.id (on_delete: cascade)
+}
+
+// Indexes
+idx_feature_flag_tags_tag: (tag)
 ```
 
 #### feature_flag_rules Table
-```sql
-CREATE TABLE feature_flag_rules (
-    id VARCHAR(36) PRIMARY KEY,
-    feature_flag_id VARCHAR(36) NOT NULL,
-    attribute VARCHAR(100),
-    operator VARCHAR(20),
-    percentage INTEGER,
-    
-    CONSTRAINT fk_feature_flag_rule FOREIGN KEY (feature_flag_id) REFERENCES feature_flags(id) ON DELETE CASCADE
-);
+```pseudo
+Table feature_flag_rules {
+    id: String (primary key, max_length: 36)
+    feature_flag_id: String (required, max_length: 36, foreign_key: feature_flags.id)
+    attribute: String (max_length: 100)
+    operator: String (max_length: 20)
+    percentage: Integer
 
-CREATE INDEX idx_feature_flag_rules_flag_id ON feature_flag_rules(feature_flag_id);
+    // Foreign Key Constraints
+    fk_feature_flag_rule: feature_flag_id -> feature_flags.id (on_delete: cascade)
+}
+
+// Indexes
+idx_feature_flag_rules_flag_id: (feature_flag_id)
 ```
 
 #### feature_flag_rule_values Table
-```sql
-CREATE TABLE feature_flag_rule_values (
-    rule_id VARCHAR(36) NOT NULL,
-    value VARCHAR(255) NOT NULL,
-    
-    PRIMARY KEY (rule_id, value),
-    CONSTRAINT fk_rule_value FOREIGN KEY (rule_id) REFERENCES feature_flag_rules(id) ON DELETE CASCADE
-);
+```pseudo
+Table feature_flag_rule_values {
+    rule_id: String (required, max_length: 36, foreign_key: feature_flag_rules.id)
+    value: String (required, max_length: 255)
+
+    // Primary Key
+    primary_key: (rule_id, value)
+
+    // Foreign Key Constraints
+    fk_rule_value: rule_id -> feature_flag_rules.id (on_delete: cascade)
+}
 ```
 
 #### configuration_events Table
-```sql
-CREATE TABLE configuration_events (
-    id VARCHAR(36) PRIMARY KEY,
-    configuration_id VARCHAR(36) NOT NULL,
-    event_type VARCHAR(20) NOT NULL,
-    version INTEGER NOT NULL,
-    user_id VARCHAR(100),
-    timestamp TIMESTAMP NOT NULL,
-    
-    CONSTRAINT fk_config_event FOREIGN KEY (configuration_id) REFERENCES configurations(id)
-);
+```pseudo
+Table configuration_events {
+    id: String (primary key, max_length: 36)
+    configuration_id: String (required, max_length: 36, foreign_key: configurations.id)
+    event_type: String (required, max_length: 20)
+    version: Integer (required)
+    user_id: String (max_length: 100)
+    timestamp: Timestamp (required)
 
-CREATE INDEX idx_configuration_events_config_id ON configuration_events(configuration_id);
-CREATE INDEX idx_configuration_events_timestamp ON configuration_events(timestamp);
+    // Foreign Key Constraints
+    fk_config_event: configuration_id -> configurations.id
+}
+
+// Indexes
+idx_configuration_events_config_id: (configuration_id)
+idx_configuration_events_timestamp: (timestamp)
 ```
 
 ### Read Model (Query Side)
 
 #### configuration_values View
-```sql
-CREATE VIEW configuration_values AS
-SELECT 
-    c.id,
-    c.key,
-    c.application,
-    c.environment,
-    c.value_type,
-    c.value,
-    c.version,
-    c.updated_at
-FROM 
-    configurations c;
+```pseudo
+View configuration_values {
+    id: String
+    key: String
+    application: String
+    environment: String
+    value_type: String
+    value: String
+    version: Integer
+    updated_at: Timestamp
+
+    // Source Query
+    SELECT id, key, application, environment, value_type, value, version, updated_at
+    FROM configurations
+}
 ```
 
 #### feature_flag_status View
-```sql
-CREATE VIEW feature_flag_status AS
-SELECT 
-    f.id,
-    f.key,
-    f.application,
-    f.environment,
-    f.enabled,
-    f.value,
-    f.version,
-    f.updated_at
-FROM 
-    feature_flags f;
+```pseudo
+View feature_flag_status {
+    id: String
+    key: String
+    application: String
+    environment: String
+    enabled: Boolean
+    value: JSON
+    version: Integer
+    updated_at: Timestamp
+
+    // Source Query
+    SELECT id, key, application, environment, enabled, value, version, updated_at
+    FROM feature_flags
+}
 ```
 
 #### configuration_audit_log View
