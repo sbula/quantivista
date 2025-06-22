@@ -69,15 +69,15 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 
 ## Microservices Architecture
 
-### 1. Feature Engineering Service
+### 1. Trading Indicator Synthesis Service
 **Technology**: Python
-**Purpose**: Transform raw data into ML-ready features with quality weighting
+**Purpose**: Synthesize normalized indicators and sentiment into ML-ready trading signals with quality weighting
 **Responsibilities**:
-- Multi-source feature extraction and transformation
-- Quality-based feature weighting and selection
-- Feature normalization and scaling
-- Temporal feature engineering (lags, rolling windows)
-- Cross-asset feature engineering
+- Synthesize technical indicators, sentiment, and market data into trading signals
+- Quality-based signal weighting and selection
+- Signal normalization and scaling for ML consumption
+- Temporal signal engineering (lags, rolling windows)
+- Cross-asset signal engineering
 
 ### 2. Market Prediction Engine Service
 **Technology**: Python
