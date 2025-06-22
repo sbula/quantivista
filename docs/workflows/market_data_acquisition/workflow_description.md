@@ -1,412 +1,257 @@
-# Market Data Acquisition and Processing Workflow
+# Market Data Acquisition Workflow
 
 ## Overview
-The Market Data Acquisition and Processing Workflow is responsible for collecting, validating, normalizing, and distributing market data from various heterogeneous sources. Given the complexity of handling multiple data formats, qualities, and timeframes, this workflow is decomposed into specialized microservices to ensure scalability, maintainability, and fault isolation.
+The Market Data Acquisition Workflow provides comprehensive market data ingestion, normalization, and distribution for the QuantiVista trading platform. It ensures high-quality, real-time market data availability across all trading workflows through multi-source aggregation, quality validation, and intelligent failover mechanisms.
 
-## Key Challenges Addressed
-- **Heterogeneous Data Sources**: Different providers (Alpha Vantage, Finnhub, IEX Cloud, Interactive Brokers, Alpaca, Bloomberg, Reuters) with varying formats, APIs, and quality levels
-- **Data Quality Assurance**: Comprehensive validation, anomaly detection, and quality scoring across all sources
-- **Multi-Timeframe Support**: Real-time ticks, minute bars, daily data, and historical datasets
-- **Fault Tolerance**: Circuit breakers, retry mechanisms, and graceful degradation for unreliable sources
-- **Scalability**: Independent scaling of ingestion, processing, and distribution components
+## Purpose and Responsibilities
 
-## Refined Workflow Sequence
+### Primary Purpose
+Acquire, normalize, and distribute high-quality market data from multiple sources to support all trading and analysis workflows.
 
-### 1. Multi-Source Data Ingestion
-**Responsibility**: Data Ingestion Service (per provider type)
-- **Real-time feeds**: WebSocket/FIX connections for live market data
-- **REST API polling**: For providers without streaming capabilities
-- **Batch historical data**: Large dataset imports and backfills
-- **Connection management**: Health monitoring, automatic reconnection, rate limiting
-- **Source-specific adapters**: Handle provider-specific protocols and formats
+### Core Responsibilities
+- **Multi-Source Data Ingestion**: Real-time data acquisition from multiple market data providers
+- **Data Normalization**: Standardize data formats across different providers and exchanges
+- **Quality Assurance**: Comprehensive data quality validation and anomaly detection
+- **Corporate Action Processing**: Handle splits, dividends, and other corporate actions
+- **Data Distribution**: Efficient distribution of normalized data to all consuming workflows
+- **Provider Management**: Intelligent failover and load balancing across data providers
 
-### 2. Data Quality Assurance and Validation
-**Responsibility**: Data Quality Service
-- **Completeness checks**: Missing data detection, gap identification
-- **Accuracy validation**: Cross-provider verification, outlier detection
-- **Timeliness monitoring**: Latency tracking, stale data detection
-- **Quality scoring**: Provider reliability metrics, data confidence levels
-- **Anomaly detection**: Statistical analysis, pattern recognition
-- **Data lineage tracking**: Full audit trail from source to consumption
+### Workflow Boundaries
+- **Provides**: Normalized, high-quality market data to all workflows
+- **Does NOT**: Analyze data or make trading decisions
+- **Focus**: Data acquisition, quality, and distribution
 
-### 3. Data Normalization and Standardization
-**Responsibility**: Data Processing Service
-- **Format standardization**: Convert to unified schema (Avro/Protobuf)
-- **Timestamp normalization**: UTC conversion, timezone handling
-- **Instrument mapping**: Symbol standardization, ISIN/CUSIP resolution
-- **Unit conversion**: Currency, price scaling, volume normalization
-- **Metadata enrichment**: Add exchange info, trading hours, instrument type
+## Data Flow and Integration
 
-### 4. Corporate Actions Processing
-**Responsibility**: Corporate Actions Service
-- **Event detection**: Splits, dividends, mergers, spin-offs
-- **Historical adjustment**: Retroactive price/volume corrections
-- **Forward adjustment**: Real-time application of corporate actions
-- **Notification system**: Alert downstream services of adjustments
-- **Audit trail**: Complete history of all adjustments applied
+### Data Sources (Consumes From)
 
-### 5. Data Storage and Archival
-**Responsibility**: Data Storage Service
-- **Raw data persistence**: Immutable storage for audit and replay
-- **Processed data storage**: Optimized for analytical queries
-- **Time-series optimization**: Partitioning, compression, indexing
-- **Tiered storage**: Hot/warm/cold data lifecycle management
-- **Backup and recovery**: Cross-region replication, point-in-time recovery
+#### From External Market Data Providers
+- **Alpha Vantage**: Free tier with 5 calls/minute, 500 calls/day limit
+- **Finnhub**: Real-time stock data with WebSocket streaming
+- **IEX Cloud**: Reliable US equity data with good free tier
+- **Interactive Brokers**: Professional-grade data via TWS API
+- **Yahoo Finance**: Backup source for historical and basic real-time data
 
-### 6. Event-Driven Distribution
-**Responsibility**: Data Distribution Service
-- **Multi-protocol support**: Apache Pulsar (primary), Apache Kafka (legacy), WebSockets (real-time UI)
-- **Topic management**: Instrument-based, timeframe-based, and quality-based topics
-- **Schema evolution**: Backward/forward compatibility via schema registry
-- **Delivery guarantees**: At-least-once, exactly-once semantics
-- **Backpressure handling**: Consumer lag monitoring, adaptive throttling
+#### From Configuration and Strategy Workflow
+- **Channel**: REST APIs, configuration files
+- **Data**: Provider configurations, instrument universes, quality thresholds
+- **Purpose**: Dynamic configuration of data sources and quality parameters
 
-## Event Contracts
+#### From System Monitoring Workflow
+- **Channel**: Apache Pulsar
+- **Events**: System health status, performance metrics
+- **Purpose**: Provider health monitoring and failover decisions
 
-### Events Produced
+### Data Outputs (Provides To)
 
-#### `RawMarketDataEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.123Z",
-  "source": "alpha_vantage|finnhub|iex_cloud|interactive_brokers",
-  "instrument": {
-    "symbol": "AAPL",
-    "exchange": "NASDAQ",
-    "isin": "US0378331005"
-  },
-  "data": {
-    "price": 150.25,
-    "volume": 1000,
-    "bid": 150.20,
-    "ask": 150.30,
-    "timestamp": "2025-06-21T10:29:59.987Z"
-  },
-  "metadata": {
-    "provider_timestamp": "2025-06-21T10:29:59.987Z",
-    "ingestion_latency_ms": 45,
-    "quality_score": 0.95
-  }
-}
-```
+#### To All Trading Workflows
+- **Channel**: Apache Pulsar
+- **Events**: `RawMarketDataEvent`, `NormalizedMarketDataEvent`
+- **Purpose**: Real-time and historical market data for trading decisions
 
-#### `NormalizedMarketDataEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.150Z",
-  "instrument": {
-    "symbol": "AAPL",
-    "exchange": "NASDAQ",
-    "isin": "US0378331005",
-    "instrument_type": "EQUITY"
-  },
-  "ohlcv": {
-    "open": 150.10,
-    "high": 150.35,
-    "low": 150.05,
-    "close": 150.25,
-    "volume": 1000,
-    "vwap": 150.18
-  },
-  "timestamp_utc": "2025-06-21T10:29:59.987Z",
-  "quality_metrics": {
-    "completeness": 1.0,
-    "accuracy_score": 0.98,
-    "timeliness_score": 0.95,
-    "source_reliability": 0.92
-  },
-  "adjustments_applied": ["split_2024_06_01", "dividend_2024_03_15"]
-}
-```
+#### To Instrument Analysis Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `CorporateActionAppliedEvent`, normalized OHLCV data
+- **Purpose**: Technical analysis and correlation computation
 
-#### `CorporateActionAppliedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.200Z",
-  "instrument": {
-    "symbol": "AAPL",
-    "isin": "US0378331005"
-  },
-  "action": {
-    "type": "STOCK_SPLIT",
-    "ratio": 2.0,
-    "ex_date": "2024-06-01",
-    "record_date": "2024-05-31"
-  },
-  "adjustments": {
-    "price_adjustment_factor": 0.5,
-    "volume_adjustment_factor": 2.0,
-    "affected_date_range": {
-      "start": "2020-01-01",
-      "end": "2024-05-31"
-    }
-  }
-}
-```
+#### To Market Prediction Workflow
+- **Channel**: Apache Pulsar
+- **Events**: High-frequency price and volume data
+- **Purpose**: ML model training and real-time prediction features
 
-#### `DataQualityAlertEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.300Z",
-  "alert_type": "STALE_DATA|MISSING_DATA|OUTLIER_DETECTED|SOURCE_UNAVAILABLE",
-  "severity": "LOW|MEDIUM|HIGH|CRITICAL",
-  "source": "alpha_vantage",
-  "instrument": "AAPL",
-  "description": "No data received for 5 minutes",
-  "metrics": {
-    "last_update": "2025-06-21T10:25:00.000Z",
-    "expected_frequency": "1s",
-    "quality_score": 0.3
-  }
-}
-```
+#### To System Monitoring Workflow
+- **Channel**: Prometheus metrics, structured logs
+- **Data**: Data quality metrics, provider performance, latency statistics
+- **Purpose**: System monitoring and data quality tracking
 
 ## Microservices Architecture
 
-### 1. Data Ingestion Services (Multiple instances by provider type)
-**Purpose**: Provider-specific data collection with optimized protocols
-**Technology**: Rust + Tokio + provider-specific SDKs
-**Scaling**: Horizontal by provider, vertical by throughput
-**NFRs**: P99 ingestion latency < 50ms, 99.9% uptime per provider
+### 1. Data Ingestion Service
+**Technology**: Go
+**Purpose**: High-performance data acquisition from multiple providers
+**Responsibilities**:
+- Multi-provider API integration (REST, WebSocket, FIX)
+- Rate limiting and quota management
+- Connection pooling and retry logic
+- Real-time data streaming and buffering
+- Provider failover and load balancing
 
-### 2. Data Quality Service
-**Purpose**: Centralized quality assurance and validation
-**Technology**: Python + Pandas + scikit-learn (for anomaly detection)
-**Scaling**: Horizontal by instrument groups
-**NFRs**: P99 validation latency < 100ms, 99.99% accuracy in anomaly detection
+### 2. Data Normalization Service
+**Technology**: Rust
+**Purpose**: High-speed data normalization and standardization
+**Responsibilities**:
+- Multi-format data parsing (JSON, CSV, FIX, binary)
+- Symbol mapping and standardization
+- Timezone conversion and synchronization
+- Data type conversion and validation
+- Schema enforcement and evolution
 
-### 3. Data Processing Service
-**Purpose**: Normalization, standardization, and enrichment
-**Technology**: Rust + Polars + Apache Arrow
-**Scaling**: Horizontal by data volume
-**NFRs**: P99 processing latency < 75ms, throughput > 1M events/sec
+### 3. Quality Assurance Service
+**Technology**: Python
+**Purpose**: Comprehensive data quality validation and monitoring
+**Responsibilities**:
+- Statistical outlier detection
+- Cross-provider data validation
+- Missing data identification and handling
+- Latency monitoring and alerting
+- Data completeness assessment
 
 ### 4. Corporate Actions Service
-**Purpose**: Corporate action detection and historical adjustment
-**Technology**: Java + Spring Boot + QuantLib
-**Scaling**: Vertical (CPU-intensive calculations)
-**NFRs**: P99 adjustment latency < 200ms, 100% accuracy in historical adjustments
+**Technology**: Go
+**Purpose**: Corporate action processing and historical adjustment
+**Responsibilities**:
+- Stock split and dividend processing
+- Merger and acquisition handling
+- Spin-off and rights issue processing
+- Historical price adjustment
+- Corporate action calendar management
 
 ### 5. Data Distribution Service
-**Purpose**: Multi-protocol event distribution and topic management
-**Technology**: Go + Apache Pulsar + Apache Kafka clients
-**Scaling**: Horizontal by topic partitions
-**NFRs**: P99 distribution latency < 25ms, exactly-once delivery guarantees
+**Technology**: Go
+**Purpose**: Efficient data distribution to consuming workflows
+**Responsibilities**:
+- Apache Pulsar topic management
+- Data partitioning and routing
+- Subscription management
+- Backpressure handling
+- Message ordering and deduplication
 
-## Messaging Technology Strategy
+### 6. Provider Management Service
+**Technology**: Go
+**Purpose**: Intelligent provider management and optimization
+**Responsibilities**:
+- Provider health monitoring
+- Automatic failover and recovery
+- Cost optimization and quota management
+- Performance benchmarking
+- SLA monitoring and reporting
 
-### Apache Pulsar (Primary)
-**Use Cases**:
-- **Real-time market data streams**: Ultra-low latency, high throughput
-- **Multi-tenant isolation**: Separate namespaces for different data types
-- **Geo-replication**: Cross-region disaster recovery
-- **Schema evolution**: Built-in schema registry with compatibility checks
-- **Tiered storage**: Automatic offloading to cheaper storage
+### 7. Data Storage Service
+**Technology**: Go
+**Purpose**: Efficient data storage and retrieval
+**Responsibilities**:
+- Time-series data storage (InfluxDB)
+- Historical data archival
+- Data compression and optimization
+- Query optimization and caching
+- Backup and disaster recovery
 
-**Configuration**:
-```yaml
-pulsar:
-  topics:
-    - "market-data/real-time/{exchange}/{instrument}"
-    - "market-data/normalized/{timeframe}/{instrument}"
-    - "corporate-actions/{instrument}"
-    - "data-quality/alerts/{severity}"
-  retention:
-    real_time: "7 days"
-    normalized: "2 years"
-    corporate_actions: "10 years"
-  replication:
-    clusters: ["us-east", "us-west", "eu-central"]
-```
+## Key Integration Points
 
-### Apache Kafka (Legacy/Specific Use Cases)
-**Use Cases**:
-- **Batch processing**: Historical data processing, ETL jobs
-- **Integration with existing systems**: Legacy system compatibility
-- **Exactly-once semantics**: Critical financial transactions
-- **Stream processing**: Kafka Streams for complex event processing
+### Data Providers
+- **Alpha Vantage**: 5 calls/minute, 500 calls/day (free tier)
+- **Finnhub**: Real-time WebSocket, 60 calls/minute (free tier)
+- **IEX Cloud**: 100,000 messages/month (free tier)
+- **Interactive Brokers**: Professional data via TWS API
+- **Yahoo Finance**: Unlimited basic data (backup source)
 
-**Migration Strategy**: Gradual migration from Kafka to Pulsar for new features
+### Data Formats
+- **REST APIs**: JSON-based data retrieval
+- **WebSocket Streams**: Real-time data streaming
+- **FIX Protocol**: Professional trading data feeds
+- **CSV Files**: Batch historical data import
+- **Binary Formats**: High-frequency data feeds
 
-## Data Storage Strategy
+### Communication Protocols
+- **Apache Pulsar**: Primary event streaming platform
+- **WebSocket**: Real-time data streaming
+- **REST APIs**: Configuration and control interfaces
+- **gRPC**: High-performance internal communication
 
-### TimescaleDB (Primary Time-Series)
-- **Real-time data**: 1-second granularity, 30-day retention
-- **Minute bars**: 1-minute OHLCV, 2-year retention
-- **Daily data**: End-of-day prices, 10-year retention
-- **Partitioning**: By time (monthly) and instrument groups
-- **Compression**: Automatic compression for data older than 7 days
+### Data Storage
+- **InfluxDB**: Time-series market data storage
+- **Redis**: Real-time data caching and distribution
+- **PostgreSQL**: Metadata and configuration storage
+- **Apache Pulsar**: Event streaming and message persistence
 
-### PostgreSQL (Metadata & Configuration)
-- **Instrument reference data**: Symbols, exchanges, corporate actions
-- **Data source configuration**: Provider settings, API keys
-- **Quality metrics**: Historical quality scores, SLA tracking
-- **User preferences**: Subscription settings, alert configurations
+## Service Level Objectives
 
-### Redis (Caching & Real-time)
-- **Latest prices cache**: Sub-millisecond access to current prices
-- **Session data**: WebSocket connections, user sessions
-- **Rate limiting**: API throttling, circuit breaker state
-- **Temporary storage**: Processing queues, intermediate results
+### Data Quality SLOs
+- **Data Accuracy**: 99.9% accuracy vs reference sources
+- **Data Completeness**: 99.5% of expected data points received
+- **Data Freshness**: 95% of data delivered within 1 second of market event
+- **Provider Availability**: 99.9% uptime across all providers
 
-### S3/MinIO (Archive & Backup)
-- **Raw data archive**: Immutable storage for compliance
-- **Historical backups**: Daily snapshots, cross-region replication
-- **Large datasets**: Bulk historical data imports
-- **Data lake**: Analytics and ML training datasets
+### Performance SLOs
+- **Ingestion Latency**: 95% of data ingested within 100ms
+- **Normalization Speed**: 99% of data normalized within 50ms
+- **Distribution Latency**: 95% of data distributed within 200ms
+- **System Availability**: 99.99% uptime during market hours
 
-## Quality Assurance Framework
+## Dependencies
 
-### Multi-Level Validation
-1. **Syntactic validation**: Format, schema compliance
-2. **Semantic validation**: Business rule checks, range validation
-3. **Cross-source validation**: Provider comparison, consensus building
-4. **Temporal validation**: Sequence checks, gap detection
-5. **Statistical validation**: Outlier detection, trend analysis
+### External Dependencies
+- Multiple market data provider APIs and feeds
+- Internet connectivity for real-time data streaming
+- Cloud storage for historical data archival
+- Time synchronization services (NTP)
 
-### Quality Metrics
-- **Completeness**: Percentage of expected data points received
-- **Accuracy**: Deviation from consensus or reference prices
-- **Timeliness**: Latency from market event to system ingestion
-- **Consistency**: Cross-provider agreement levels
-- **Reliability**: Provider uptime and error rates
+### Internal Dependencies
+- Configuration and Strategy workflow for provider settings
+- System Monitoring workflow for health validation
+- Infrastructure as Code workflow for deployment management
+- All trading workflows as data consumers
 
-### Quality Scoring Algorithm
-```python
-def calculate_quality_score(data_point):
-    completeness = check_completeness(data_point)
-    accuracy = cross_validate_accuracy(data_point)
-    timeliness = measure_latency(data_point)
-    consistency = check_cross_provider_consistency(data_point)
+## Data Quality Framework
 
-    weights = {
-        'completeness': 0.3,
-        'accuracy': 0.4,
-        'timeliness': 0.2,
-        'consistency': 0.1
-    }
+### Quality Validation
+- **Statistical Validation**: Outlier detection using z-scores and IQR
+- **Cross-Provider Validation**: Data consistency across multiple sources
+- **Temporal Validation**: Time-series consistency and gap detection
+- **Business Rule Validation**: Market hours, trading halts, circuit breakers
+- **Reference Data Validation**: Symbol mapping and corporate action verification
 
-    return sum(metric * weights[name] for name, metric in {
-        'completeness': completeness,
-        'accuracy': accuracy,
-        'timeliness': timeliness,
-        'consistency': consistency
-    }.items())
-```
+### Quality Scoring
+- **Timeliness Score**: Data freshness and latency assessment
+- **Accuracy Score**: Cross-provider agreement measurement
+- **Completeness Score**: Missing data point assessment
+- **Consistency Score**: Time-series consistency evaluation
+- **Overall Quality Score**: Weighted combination of all quality metrics
 
 ## Circuit Breaker Implementation
 
 ### Provider-Level Circuit Breakers
-```rust
-pub struct ProviderCircuitBreaker {
-    failure_threshold: u32,
-    recovery_timeout: Duration,
-    half_open_max_calls: u32,
-    state: CircuitBreakerState,
-}
+- **Failure Threshold**: 5 consecutive failures trigger circuit breaker
+- **Timeout Threshold**: 10-second response time threshold
+- **Recovery Time**: 30-second recovery period before retry
+- **Escalation**: Automatic failover to backup providers
+- **Monitoring**: Real-time circuit breaker status tracking
 
-impl ProviderCircuitBreaker {
-    pub async fn call_provider<T>(&mut self, provider_call: impl Future<Output = Result<T>>) -> Result<T> {
-        match self.state {
-            CircuitBreakerState::Closed => self.execute_call(provider_call).await,
-            CircuitBreakerState::Open => Err(CircuitBreakerError::Open),
-            CircuitBreakerState::HalfOpen => self.try_recovery(provider_call).await,
-        }
-    }
-}
-```
+### System-Level Protection
+- **Rate Limiting**: Respect provider API rate limits
+- **Quota Management**: Track and manage daily/monthly quotas
+- **Backoff Strategy**: Exponential backoff for failed requests
+- **Load Balancing**: Distribute load across available providers
+- **Graceful Degradation**: Maintain service with reduced functionality
 
-### Graceful Degradation Strategy
-1. **Primary provider failure**: Automatic failover to secondary providers
-2. **Multiple provider failure**: Use cached data with staleness warnings
-3. **Complete data loss**: Historical pattern-based estimation
-4. **Recovery**: Gradual re-enablement with quality monitoring
+## Cost Optimization
 
-## Performance Optimizations
+### Free Tier Management
+- **Alpha Vantage**: 5 calls/minute optimization
+- **Finnhub**: 60 calls/minute rate limiting
+- **IEX Cloud**: 100,000 message quota management
+- **Yahoo Finance**: Unlimited backup usage
+- **Intelligent Routing**: Route requests to optimal providers
 
-### Ingestion Optimizations
-- **Connection pooling**: Reuse HTTP/WebSocket connections
-- **Batch processing**: Group small updates for efficiency
-- **Parallel processing**: Concurrent ingestion from multiple sources
-- **Memory management**: Zero-copy deserialization where possible
-- **NUMA awareness**: Thread pinning for CPU-intensive operations
+### Caching Strategy
+- **Real-Time Cache**: Redis for current market data
+- **Historical Cache**: InfluxDB for time-series data
+- **Metadata Cache**: PostgreSQL for symbol and corporate action data
+- **CDN Integration**: Geographic data distribution
+- **Cache Invalidation**: Smart cache refresh strategies
 
-### Processing Optimizations
-- **Vectorized operations**: SIMD instructions for bulk calculations
-- **Lazy evaluation**: Process only requested data
-- **Caching strategies**: Multi-level caching (L1/L2/Redis)
-- **Compression**: Real-time compression for network transfer
-- **Partitioning**: Distribute load across processing nodes
+## Disaster Recovery
 
-## Monitoring and Alerting
+### Multi-Region Deployment
+- **Primary Region**: US East for low-latency market access
+- **Secondary Region**: US West for disaster recovery
+- **Data Replication**: Real-time data synchronization
+- **Failover Automation**: Automatic region failover
+- **Recovery Testing**: Regular disaster recovery testing
 
-### Key Metrics
-- **Ingestion rate**: Messages per second by provider
-- **Processing latency**: End-to-end latency percentiles
-- **Quality scores**: Real-time quality metrics by instrument
-- **Error rates**: Failed ingestion/processing attempts
-- **Storage utilization**: Database size and growth rates
-
-### Alert Conditions
-- **Data staleness**: No updates for > 2x expected frequency
-- **Quality degradation**: Quality score drops below 0.8
-- **Provider outage**: Circuit breaker opens
-- **Processing backlog**: Queue depth exceeds thresholds
-- **Storage issues**: Disk usage > 85% or write failures
-
-## Usage by Downstream Services
-
-### Technical Analysis Service
-- **Consumes**: `NormalizedMarketDataEvent` for indicator calculations
-- **Requirements**: Real-time updates, historical data access
-- **SLA**: < 100ms latency for real-time indicators
-
-### ML Prediction Service
-- **Consumes**: `NormalizedMarketDataEvent`, `DataQualityAlertEvent`
-- **Requirements**: High-quality features, missing data handling
-- **SLA**: < 200ms for feature extraction
-
-### Risk Analysis Service
-- **Consumes**: `NormalizedMarketDataEvent`, `CorporateActionAppliedEvent`
-- **Requirements**: Adjusted historical data, real-time positions
-- **SLA**: < 150ms for portfolio risk calculations
-
-### Trading Strategy Service
-- **Consumes**: `NormalizedMarketDataEvent` for decision making
-- **Requirements**: Ultra-low latency, high reliability
-- **SLA**: < 50ms for critical trading decisions
-
-### Reporting Service
-- **Consumes**: All events for historical analysis and visualization
-- **Requirements**: Complete historical data, quality metadata
-- **SLA**: < 5s for report generation
-
-## Implementation Roadmap
-
-### Phase 1: Foundation (Weeks 1-4)
-- Set up basic ingestion services for 2-3 primary providers
-- Implement core data quality validation
-- Deploy TimescaleDB with basic partitioning
-- Set up Apache Pulsar cluster
-
-### Phase 2: Quality & Reliability (Weeks 5-8)
-- Implement comprehensive quality scoring
-- Add circuit breakers and failover mechanisms
-- Deploy corporate actions service
-- Add monitoring and alerting
-
-### Phase 3: Scale & Optimize (Weeks 9-12)
-- Add remaining data providers
-- Implement advanced quality algorithms
-- Optimize for high-throughput scenarios
-- Add cross-region replication
-
-### Phase 4: Advanced Features (Weeks 13-16)
-- Machine learning-based anomaly detection
-- Predictive quality scoring
-- Advanced caching strategies
-- Performance tuning and optimization
+### Data Backup
+- **Real-Time Backup**: Continuous data replication
+- **Historical Archive**: Long-term data storage
+- **Point-in-Time Recovery**: Granular recovery capabilities
+- **Cross-Cloud Backup**: Multi-cloud data protection
+- **Compliance Retention**: Regulatory data retention requirements

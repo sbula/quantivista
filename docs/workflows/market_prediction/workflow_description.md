@@ -1,307 +1,269 @@
 # Market Prediction Workflow
 
 ## Overview
-The Market Prediction Workflow is responsible for generating instrument evaluations and price predictions using machine learning models, technical analysis, and market intelligence. This workflow focuses purely on prediction and evaluation without making trading decisions, providing standardized instrument ratings and confidence metrics for downstream decision-making workflows.
+The Market Prediction Workflow provides comprehensive machine learning-based market predictions and instrument evaluations for the QuantiVista trading platform. It transforms technical indicators, market intelligence, and alternative data into actionable investment ratings and predictions across multiple timeframes.
 
-## Key Challenges Addressed
-- **Quality-Aware Feature Integration**: Consuming features from upstream workflows with quality-based weighting
-- **Multi-Timeframe Evaluation**: Consistent instrument rating across different time horizons
-- **Model Lifecycle Management**: Automated retraining, A/B testing, and performance monitoring
-- **Prediction Accuracy**: Ensemble methods and uncertainty quantification
-- **Real-time Prediction Updates**: Streaming predictions as new market data and intelligence arrive
+## Purpose and Responsibilities
 
-## Core Responsibilities
-- **Feature Engineering**: Quality-weighted feature preparation from all upstream workflows
-- **ML Model Management**: Model versioning, training, deployment, and lifecycle management
-- **Instrument Evaluation**: Independent rating of instruments across multiple timeframes
-- **Prediction Generation**: Price predictions with confidence intervals and uncertainty quantification
-- **Performance Monitoring**: Model accuracy tracking, drift detection, and retraining triggers
+### Primary Purpose
+Generate high-quality, multi-timeframe instrument evaluations and market predictions using machine learning models and comprehensive feature engineering.
 
-## NOT This Workflow's Responsibilities
-- **Trading Decisions**: Making buy/sell/hold decisions (belongs to Trading Decision Workflow)
-- **Position Sizing**: Calculating position sizes (belongs to Trading Decision Workflow)
-- **Portfolio Analysis**: Portfolio-level risk and optimization (belongs to Portfolio Management Workflow)
-- **Order Execution**: Trade execution and order management (belongs to Trade Execution Workflow)
-- **Risk Policy Enforcement**: Applying trading rules and constraints (belongs to Trading Decision Workflow)
+### Core Responsibilities
+- **Feature Engineering**: Transform raw data into ML-ready features with quality weighting
+- **Multi-Timeframe Prediction**: Generate predictions across 1h, 4h, 1d, 1w, 1mo timeframes
+- **Instrument Evaluation**: Comprehensive instrument rating and confidence scoring
+- **Model Performance Monitoring**: Continuous model validation and performance tracking
+- **Prediction Quality Assurance**: Confidence scoring and prediction reliability assessment
+- **Feature Quality Management**: Quality-based feature weighting and selection
 
-## Workflow Sequence
+### Workflow Boundaries
+- **Predicts**: Instrument price movements and generates investment ratings
+- **Does NOT**: Make trading decisions or execute trades
+- **Focus**: ML-based prediction and instrument evaluation
 
-### 1. Quality-Aware Feature Engineering
-**Responsibility**: ML Feature Engineering Service
+## Data Flow and Integration
 
-#### Multi-Source Feature Integration
-- **Market Data Features**: Price, volume, volatility from Market Data workflow
-- **Technical Features**: Indicators, patterns, correlations from Instrument Analysis workflow
-- **Intelligence Features**: Sentiment, impact assessments from Market Intelligence workflow
-- **Quality Weighting**: Apply quality scores from upstream workflows to feature importance
-- **Feature Validation**: Cross-validate features across multiple sources
+### Data Sources (Consumes From)
 
-#### Feature Categories by Quality Tier
-```python
-class FeatureQualityTiers:
-    TIER_1_PREMIUM = {
-        'sources': ['verified_market_data', 'high_confidence_technical_indicators'],
-        'weight_multiplier': 1.0,
-        'use_for': 'real_time_predictions'
-    }
-    
-    TIER_2_STANDARD = {
-        'sources': ['standard_market_data', 'medium_confidence_indicators'],
-        'weight_multiplier': 0.8,
-        'use_for': 'medium_term_predictions'
-    }
-    
-    TIER_3_RESEARCH = {
-        'sources': ['social_media_sentiment', 'low_confidence_signals'],
-        'weight_multiplier': 0.5,
-        'use_for': 'long_term_trend_analysis'
-    }
-```
+#### From Instrument Analysis Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `TechnicalIndicatorComputedEvent`, `PatternDetectedEvent`
+- **Purpose**: Technical indicators and patterns as ML features
 
-### 2. ML Model Management and Training
-**Responsibility**: ML Model Management Service
+#### From Market Intelligence Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `NewsSentimentAnalyzedEvent`, `MarketImpactAssessmentEvent`
+- **Purpose**: Sentiment and market impact features for prediction models
 
-#### Model Lifecycle Management
-- **Model Versioning**: Semantic versioning with A/B testing capabilities
-- **Automated Retraining**: Trigger retraining based on performance degradation
-- **Ensemble Management**: Dynamic model weighting based on recent performance
-- **Drift Detection**: Monitor feature and prediction drift over time
-- **Gradual Rollouts**: Canary deployments for new model versions
+#### From Market Data Acquisition Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `NormalizedMarketDataEvent`
+- **Purpose**: Price and volume data for feature engineering and model training
 
-#### Model Types and Specialization
-- **Short-term Models (1h-4h)**: High-frequency technical and microstructure features
-- **Medium-term Models (1d-1w)**: Technical indicators and sentiment analysis
-- **Long-term Models (1w-1mo)**: Fundamental analysis and macroeconomic factors
-- **Ensemble Models**: Meta-learning across multiple base models
-- **Specialized Models**: Sector-specific, volatility-regime specific models
+#### From Configuration and Strategy Workflow
+- **Channel**: REST APIs, configuration files
+- **Data**: Model parameters, feature configurations, quality thresholds
+- **Purpose**: ML model configuration and feature quality settings
 
-### 3. Prediction Generation Engine
-**Responsibility**: ML Prediction Engine Service
+### Data Outputs (Provides To)
 
-#### Multi-Timeframe Prediction Generation
-- **Ensemble Aggregation**: Combine predictions across models and timeframes
-- **Uncertainty Quantification**: Bayesian confidence intervals and prediction intervals
-- **Calibration**: Ensure prediction probabilities match actual outcomes
-- **Real-time Updates**: Streaming predictions as new data arrives
-- **Batch Predictions**: Efficient batch processing for multiple instruments
+#### To Trading Decision Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `InstrumentEvaluatedEvent`, `MarketPredictionEvent`
+- **Purpose**: Instrument evaluations and predictions for trading signal generation
 
-### 4. Independent Instrument Evaluation
-**Responsibility**: Instrument Evaluation Service
+#### To Portfolio Management Workflow
+- **Channel**: Apache Pulsar
+- **Events**: Prediction confidence metrics, model performance data
+- **Purpose**: Portfolio optimization and risk assessment
 
-#### Rating Scale (Independent of Portfolio)
-- **Strong Buy (5)**: High confidence positive prediction with strong technical confirmation
-- **Buy (4)**: Moderate confidence positive prediction with technical support
-- **Neutral (3)**: Low confidence or conflicting signals across timeframes
-- **Sell (2)**: Moderate confidence negative prediction with technical confirmation
-- **Strong Sell (1)**: High confidence negative prediction with strong technical confirmation
+#### To System Monitoring Workflow
+- **Channel**: Prometheus metrics, structured logs
+- **Data**: Model performance metrics, prediction accuracy, processing times
+- **Purpose**: System monitoring and model performance tracking
 
-#### Multi-Timeframe Rating Engine
-```python
-class InstrumentEvaluator:
-    def __init__(self):
-        self.timeframes = ['1h', '4h', '1d', '1w', '1mo']
-        self.rating_thresholds = {
-            'strong_buy': 0.8,
-            'buy': 0.6,
-            'neutral': 0.4,
-            'sell': 0.2,
-            'strong_sell': 0.0
-        }
-    
-    async def evaluate_instrument(self, instrument_id: str) -> InstrumentEvaluation:
-        """Generate independent evaluation for an instrument"""
-        
-        # Collect features from all upstream workflows
-        features = await self.collect_quality_weighted_features(instrument_id)
-        
-        # Generate predictions for all timeframes
-        predictions = {}
-        for timeframe in self.timeframes:
-            prediction = await self.ml_prediction_service.predict(
-                instrument_id, timeframe, features
-            )
-            predictions[timeframe] = prediction
-        
-        # Apply technical confirmation
-        technical_signals = await self.get_technical_confirmation(instrument_id)
-        
-        # Integrate sentiment analysis
-        sentiment_score = await self.get_sentiment_score(instrument_id)
-        
-        # Calculate composite rating for each timeframe
-        ratings = {}
-        for timeframe, prediction in predictions.items():
-            composite_score = self.calculate_composite_score(
-                prediction, technical_signals, sentiment_score, timeframe
-            )
-            ratings[timeframe] = self.score_to_rating(composite_score)
-        
-        return InstrumentEvaluation(
-            instrument_id=instrument_id,
-            timestamp=datetime.utcnow(),
-            ratings=ratings,
-            predictions=predictions,
-            technical_signals=technical_signals,
-            sentiment_score=sentiment_score,
-            confidence_metrics=self.calculate_confidence_metrics(predictions)
-        )
-```
+#### To Reporting and Analytics Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `ModelPerformanceEvent`, prediction analytics
+- **Purpose**: Model performance reporting and prediction analysis
 
-### 5. Prediction Quality Assessment
-**Responsibility**: Prediction Quality Service
+## Microservices Architecture
 
-#### Quality Metrics and Validation
-- **Prediction Accuracy**: Track accuracy across different timeframes and market conditions
-- **Calibration Assessment**: Ensure predicted probabilities match actual outcomes
-- **Feature Quality Validation**: Cross-validate features across multiple sources
-- **Model Agreement**: Measure consensus across different models
-- **Confidence Calibration**: Validate that confidence scores are well-calibrated
+### 1. Feature Engineering Service
+**Technology**: Python
+**Purpose**: Transform raw data into ML-ready features with quality weighting
+**Responsibilities**:
+- Multi-source feature extraction and transformation
+- Quality-based feature weighting and selection
+- Feature normalization and scaling
+- Temporal feature engineering (lags, rolling windows)
+- Cross-asset feature engineering
 
-### 6. Event-Driven Prediction Distribution
-**Responsibility**: Prediction Distribution Service
-- **Real-time streaming**: Apache Pulsar for immediate prediction updates
-- **Prediction persistence**: Store predictions with full metadata and reasoning
-- **Performance tracking**: Monitor prediction outcomes and model performance
-- **API gateway**: RESTful and gRPC APIs for prediction consumption
-- **Quality routing**: Route high-quality predictions to real-time systems
+### 2. Market Prediction Engine Service
+**Technology**: Python
+**Purpose**: Transform engineered features into market predictions using ensemble ML models
+**Responsibilities**:
+- Ensemble model management (XGBoost, LightGBM, Neural Networks)
+- Multi-timeframe model training and inference
+- Model versioning and deployment
+- Hyperparameter optimization
+- Online learning and model updates
 
-## Event Contracts
+### 3. Instrument Evaluation Service
+**Technology**: Python
+**Purpose**: Generate comprehensive instrument evaluations and ratings
+**Responsibilities**:
+- Multi-timeframe rating synthesis
+- Confidence scoring and uncertainty quantification
+- Technical confirmation integration
+- Rating consistency validation
+- Investment recommendation generation
 
-### Events Produced
+### 4. Model Performance Service
+**Technology**: Python
+**Purpose**: Continuous model monitoring and performance validation
+**Responsibilities**:
+- Real-time model performance tracking
+- Prediction accuracy measurement
+- Model drift detection
+- A/B testing framework
+- Performance attribution analysis
 
-#### `InstrumentEvaluatedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.123Z",
-  "instrument_id": "AAPL",
-  "evaluation": {
-    "ratings": {
-      "1h": "buy",
-      "4h": "buy", 
-      "1d": "strong_buy",
-      "1w": "neutral",
-      "1mo": "buy"
-    },
-    "predictions": {
-      "1h": {
-        "direction": "positive",
-        "confidence": 0.78,
-        "price_target": 152.50,
-        "probability": 0.78,
-        "confidence_interval": {
-          "lower_95": 151.20,
-          "upper_95": 153.80
-        }
-      },
-      "1d": {
-        "direction": "positive", 
-        "confidence": 0.85,
-        "price_target": 155.25,
-        "probability": 0.85,
-        "confidence_interval": {
-          "lower_95": 152.80,
-          "upper_95": 157.70
-        }
-      }
-    },
-    "technical_signals": {
-      "rsi_signal": "oversold_recovery",
-      "macd_signal": "bullish_crossover",
-      "pattern_signal": "ascending_triangle"
-    },
-    "sentiment_score": 0.72,
-    "overall_confidence": 0.81,
-    "quality_metrics": {
-      "feature_quality": 0.89,
-      "data_completeness": 0.95,
-      "model_agreement": 0.87
-    }
-  },
-  "reasoning": {
-    "primary_factors": ["strong_technical_momentum", "positive_sentiment", "earnings_beat"],
-    "risk_factors": ["sector_volatility", "market_uncertainty"],
-    "confidence_drivers": ["high_model_agreement", "strong_technical_confirmation"]
-  }
-}
-```
+### 5. Prediction Cache Service
+**Technology**: Go
+**Purpose**: High-performance prediction caching and distribution
+**Responsibilities**:
+- Real-time prediction caching
+- Multi-timeframe prediction management
+- Cache invalidation and refresh
+- Prediction versioning
+- Low-latency prediction serving
 
-#### `MarketPredictionEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.200Z",
-  "instrument_id": "AAPL",
-  "timeframe": "1d",
-  "prediction": {
-    "direction": "positive",
-    "confidence": 0.85,
-    "price_target": 155.25,
-    "probability_distribution": {
-      "positive": 0.85,
-      "neutral": 0.10,
-      "negative": 0.05
-    },
-    "confidence_interval": {
-      "lower_95": 152.80,
-      "upper_95": 157.70,
-      "lower_80": 153.50,
-      "upper_80": 157.00
-    },
-    "expected_return": 0.025,
-    "volatility_forecast": 0.18
-  },
-  "model_metadata": {
-    "model_id": "ensemble_v2.1",
-    "models_used": ["gradient_boost", "neural_net", "random_forest"],
-    "feature_importance": {
-      "rsi_14": 0.25,
-      "news_sentiment": 0.20,
-      "volume_change": 0.15,
-      "macd_signal": 0.12,
-      "sector_momentum": 0.10
-    },
-    "prediction_quality": {
-      "feature_quality": 0.89,
-      "model_agreement": 0.87,
-      "historical_accuracy": 0.74
-    }
-  }
-}
-```
+### 6. Model Training Service
+**Technology**: Python
+**Purpose**: Automated model training and retraining pipeline
+**Responsibilities**:
+- Automated feature selection
+- Model training and validation
+- Cross-validation and backtesting
+- Model selection and ensemble optimization
+- Production model deployment
 
-#### `ModelPerformanceEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:30:00.300Z",
-  "model_id": "ensemble_v2.1",
-  "timeframe": "1d",
-  "performance_period": {
-    "start": "2025-06-01T00:00:00.000Z",
-    "end": "2025-06-21T00:00:00.000Z"
-  },
-  "metrics": {
-    "accuracy": 0.74,
-    "precision": 0.76,
-    "recall": 0.72,
-    "f1_score": 0.74,
-    "calibration_score": 0.91,
-    "log_loss": 0.45,
-    "brier_score": 0.18
-  },
-  "performance_by_rating": {
-    "strong_buy": {"accuracy": 0.82, "precision": 0.85, "recall": 0.78},
-    "buy": {"accuracy": 0.71, "precision": 0.73, "recall": 0.69},
-    "neutral": {"accuracy": 0.65, "precision": 0.62, "recall": 0.68},
-    "sell": {"accuracy": 0.69, "precision": 0.71, "recall": 0.67},
-    "strong_sell": {"accuracy": 0.79, "precision": 0.81, "recall": 0.77}
-  },
-  "drift_metrics": {
-    "feature_drift": 0.12,
-    "prediction_drift": 0.08,
-    "performance_drift": 0.05,
-    "retraining_recommended": false
-  }
-}
-```
+### 7. Quality Assurance Service
+**Technology**: Python
+**Purpose**: Prediction quality monitoring and validation
+**Responsibilities**:
+- Prediction confidence assessment
+- Quality score calculation
+- Outlier detection and handling
+- Model reliability monitoring
+- Quality-based prediction filtering
+
+## Key Integration Points
+
+### Feature Categories
+- **Technical Features**: Price patterns, momentum, volatility indicators
+- **Fundamental Features**: Financial ratios, earnings data, valuation metrics
+- **Sentiment Features**: News sentiment, social media sentiment, analyst ratings
+- **Market Structure Features**: Volume patterns, order flow, market microstructure
+- **Alternative Features**: ESG scores, satellite data, economic indicators
+
+### Model Architecture
+- **Ensemble Models**: XGBoost, LightGBM, Random Forest combination
+- **Deep Learning**: LSTM, GRU, Transformer models for sequence prediction
+- **Traditional ML**: SVM, Logistic Regression for baseline models
+- **Online Learning**: Incremental learning for real-time adaptation
+- **Meta-Learning**: Model selection and ensemble weighting
+
+### Prediction Outputs
+- **Direction Prediction**: Positive, neutral, negative price movement
+- **Magnitude Prediction**: Expected return and volatility forecasts
+- **Confidence Intervals**: Uncertainty quantification and risk assessment
+- **Time Horizon**: Multi-timeframe predictions (1h to 1mo)
+- **Quality Scores**: Prediction reliability and confidence metrics
+
+### Data Storage
+- **Feature Store**: Redis for real-time feature serving
+- **Model Registry**: MLflow for model versioning and management
+- **Prediction Database**: ClickHouse for prediction history and analytics
+- **Training Data**: S3/MinIO for large-scale training datasets
+
+## Service Level Objectives
+
+### Prediction SLOs
+- **Prediction Latency**: 95% of predictions generated within 500ms
+- **Model Accuracy**: 65% directional accuracy over 30-day periods
+- **Feature Processing**: 99% of features processed within 200ms
+- **System Availability**: 99.9% uptime during market hours
+
+### Quality SLOs
+- **Prediction Confidence**: 80% minimum confidence for actionable predictions
+- **Model Stability**: 95% prediction consistency across model versions
+- **Feature Quality**: 90% of features meet quality thresholds
+- **Data Freshness**: 99% of predictions based on data less than 1 minute old
+
+## Dependencies
+
+### External Dependencies
+- Market data feeds for real-time feature engineering
+- Alternative data providers for enhanced features
+- Cloud ML platforms for model training and serving
+- Economic data providers for macro features
+
+### Internal Dependencies
+- Instrument Analysis workflow for technical features
+- Market Intelligence workflow for sentiment features
+- Market Data Acquisition workflow for price and volume data
+- Configuration and Strategy workflow for model parameters
+- System Monitoring workflow for performance validation
+
+## Machine Learning Pipeline
+
+### Feature Engineering
+- **Quality Weighting**: Tier-based feature importance weighting
+- **Multi-Source Integration**: Technical, fundamental, sentiment features
+- **Temporal Features**: Lagged features and rolling window statistics
+- **Cross-Asset Features**: Sector and market-wide features
+- **Feature Selection**: Automated feature selection and importance ranking
+
+### Model Training
+- **Ensemble Methods**: Multiple model combination and weighting
+- **Cross-Validation**: Time-series aware cross-validation
+- **Hyperparameter Optimization**: Bayesian optimization for parameter tuning
+- **Regularization**: L1/L2 regularization and dropout for overfitting prevention
+- **Online Learning**: Incremental model updates with new data
+
+### Model Validation
+- **Backtesting**: Historical performance validation
+- **Walk-Forward Analysis**: Out-of-sample performance testing
+- **Stress Testing**: Model performance under extreme market conditions
+- **A/B Testing**: Live model comparison and selection
+- **Performance Attribution**: Model contribution analysis
+
+## Quality Assurance Framework
+
+### Prediction Quality
+- **Confidence Scoring**: Statistical confidence and model agreement
+- **Uncertainty Quantification**: Prediction interval estimation
+- **Quality Metrics**: Accuracy, precision, recall, F1-score
+- **Consistency Validation**: Cross-timeframe prediction consistency
+- **Outlier Detection**: Anomalous prediction identification
+
+### Model Quality
+- **Performance Monitoring**: Real-time model performance tracking
+- **Drift Detection**: Model and data drift identification
+- **Stability Testing**: Model robustness and stability assessment
+- **Bias Detection**: Model bias and fairness evaluation
+- **Interpretability**: Model explanation and feature importance
+
+## Risk Management
+
+### Model Risk
+- **Overfitting Prevention**: Regularization and validation techniques
+- **Model Diversity**: Ensemble diversity and correlation management
+- **Performance Degradation**: Model performance monitoring and alerts
+- **Data Quality**: Input data quality validation and monitoring
+- **Model Governance**: Model approval and change management
+
+### Prediction Risk
+- **Confidence Thresholds**: Minimum confidence requirements
+- **Prediction Limits**: Maximum prediction magnitude constraints
+- **Quality Filters**: Low-quality prediction filtering
+- **Uncertainty Communication**: Clear uncertainty communication
+- **Risk Attribution**: Prediction risk contribution analysis
+
+## Performance Optimization
+
+### Computational Efficiency
+- **Model Optimization**: Model compression and quantization
+- **Feature Caching**: Intelligent feature caching strategies
+- **Parallel Processing**: Multi-threaded and GPU acceleration
+- **Batch Processing**: Efficient batch prediction processing
+- **Resource Management**: Optimal resource allocation and scaling
+
+### Prediction Quality
+- **Feature Engineering**: Advanced feature engineering techniques
+- **Model Selection**: Optimal model selection and ensemble weighting
+- **Hyperparameter Tuning**: Continuous hyperparameter optimization
+- **Data Augmentation**: Synthetic data generation for training
+- **Transfer Learning**: Knowledge transfer across instruments and markets

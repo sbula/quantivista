@@ -1,1007 +1,328 @@
 # Reporting and Analytics Workflow
 
 ## Overview
-The Reporting and Analytics Workflow is responsible for real-time and batch analytics across the entire QuantiVista platform, providing comprehensive insights, performance attribution, risk analysis, and regulatory reporting. This workflow consumes events from all upstream workflows to deliver actionable intelligence through advanced analytics, machine learning-enhanced insights, and modern visualization platforms.
+The Reporting and Analytics Workflow provides comprehensive performance reporting, analytics, and business intelligence capabilities for the QuantiVista trading platform. It transforms operational data into actionable insights through advanced analytics, regulatory reporting, and real-time dashboards for stakeholders across the organization.
 
-## Key Challenges Addressed
-- **Real-time Analytics**: Processing streaming events for immediate insights and alerts
-- **Multi-Source Data Integration**: Aggregating data from all workflows with quality assurance
-- **Advanced Performance Attribution**: Multi-level performance analysis with factor attribution
-- **ML-Enhanced Insights**: Anomaly detection, pattern recognition, and predictive analytics
-- **Regulatory Compliance**: Automated regulatory reporting and comprehensive audit trails
-- **Scalable Visualization**: High-performance dashboards supporting thousands of concurrent users
+## Purpose and Responsibilities
 
-## Core Responsibilities
-- **Event-Driven Analytics**: Real-time consumption and processing of all workflow events
-- **Advanced Analytics Engine**: ML-enhanced insights, anomaly detection, predictive modeling
-- **Performance Attribution**: Comprehensive multi-level performance and risk attribution
-- **Regulatory Reporting**: Automated compliance reporting and audit trail generation
-- **Interactive Visualization**: Real-time dashboards and advanced charting capabilities
-- **Data Warehouse Management**: Historical data storage, OLAP, and data lineage tracking
+### Primary Purpose
+Transform operational and trading data into comprehensive reports, analytics, and business intelligence to support decision-making, regulatory compliance, and performance evaluation.
 
-## NOT This Workflow's Responsibilities
-- **User Interface Development**: Web/mobile UI development (belongs to User Interface Workflow)
-- **User Authentication**: User management and security (belongs to User Interface Workflow)
-- **Trading Decisions**: Making trading decisions (belongs to Trading Decision Workflow)
-- **Portfolio Strategy Configuration**: Strategy setup UI (belongs to User Interface Workflow)
-- **Market Data Collection**: Data ingestion (belongs to Market Data Workflow)
+### Core Responsibilities
+- **Performance Reporting**: Comprehensive portfolio and strategy performance analysis
+- **Risk Analytics**: Advanced risk measurement and attribution analysis
+- **Regulatory Reporting**: Automated compliance and regulatory report generation
+- **Business Intelligence**: Strategic insights and trend analysis
+- **Real-time Dashboards**: Live monitoring and operational dashboards
+- **Data Visualization**: Interactive charts, graphs, and analytical visualizations
 
-## Refined Workflow Sequence
+### Workflow Boundaries
+- **Reports**: Performance, risk, compliance, and operational data
+- **Does NOT**: Make trading decisions or execute trades
+- **Focus**: Data analysis, reporting, and business intelligence
 
-### 1. Real-time Event Ingestion and Processing
-**Responsibility**: Data Ingestion Service
+## Data Flow and Integration
 
-#### Event Stream Processing
-```go
-type EventProcessor struct {
-    eventConsumers map[string]*EventConsumer
-    analyticsEngine *AnalyticsEngine
-    dataWarehouse  *DataWarehouse
-    realTimeCache  *RealTimeCache
-}
-
-func (ep *EventProcessor) ProcessEventStreams(ctx context.Context) error {
-    // Set up consumers for all workflow events
-    consumers := map[string]string{
-        "market-data":           "market-data/normalized/*",
-        "market-intelligence":   "market-intelligence/sentiment/*",
-        "instrument-analysis":   "instrument-analysis/indicators/*",
-        "market-prediction":     "market-predictions/evaluations/*",
-        "trading-decision":      "trading-decisions/signals/*",
-        "portfolio-coordination": "portfolio-coordination/decisions/*",
-        "portfolio-management":  "portfolio-management/rebalance/*",
-        "trade-execution":       "trade-execution/executions/*",
-    }
-
-    for workflowName, topicPattern := range consumers {
-        consumer := ep.createEventConsumer(workflowName, topicPattern)
-        go ep.processWorkflowEvents(ctx, workflowName, consumer)
-    }
-
-    return nil
-}
-
-func (ep *EventProcessor) processWorkflowEvents(
-    ctx context.Context,
-    workflowName string,
-    consumer *EventConsumer
-) {
-    for {
-        select {
-        case <-ctx.Done():
-            return
-        case event := <-consumer.Events():
-            // Process event in real-time
-            if err := ep.processEvent(event, workflowName); err != nil {
-                log.Error("Failed to process event", "error", err, "workflow", workflowName)
-                continue
-            }
-
-            // Update real-time cache
-            ep.realTimeCache.UpdateMetrics(event)
-
-            // Store in data warehouse for historical analysis
-            ep.dataWarehouse.StoreEvent(event)
-
-            // Trigger real-time analytics
-            ep.analyticsEngine.ProcessRealTimeEvent(event)
-        }
-    }
-}
-```
-
-### 2. Advanced Analytics Engine with ML Enhancement
-**Responsibility**: Analytics Engine Service
-
-#### ML-Enhanced Analytics Pipeline
-```python
-class AdvancedAnalyticsEngine:
-    def __init__(self):
-        self.anomaly_detector = AnomalyDetector()
-        self.pattern_recognizer = PatternRecognizer()
-        self.predictive_models = PredictiveModels()
-        self.performance_analyzer = PerformanceAnalyzer()
-
-    async def process_real_time_analytics(self, event: Event) -> List[AnalyticsInsight]:
-        """Process real-time analytics with ML enhancement"""
-
-        insights = []
-
-        # Anomaly detection
-        anomalies = await self.anomaly_detector.detect_anomalies(event)
-        if anomalies:
-            insights.extend(self.create_anomaly_insights(anomalies))
-
-        # Pattern recognition
-        patterns = await self.pattern_recognizer.identify_patterns(event)
-        if patterns:
-            insights.extend(self.create_pattern_insights(patterns))
-
-        # Predictive analytics
-        predictions = await self.predictive_models.generate_predictions(event)
-        if predictions:
-            insights.extend(self.create_predictive_insights(predictions))
-
-        # Performance impact analysis
-        if isinstance(event, (TradeExecutedEvent, PortfolioRebalancedEvent)):
-            performance_impact = await self.performance_analyzer.analyze_impact(event)
-            insights.extend(self.create_performance_insights(performance_impact))
-
-        # Publish insights for real-time dashboards
-        for insight in insights:
-            await self.publish_insight(insight)
-
-        return insights
-
-    async def detect_trading_anomalies(self, events: List[Event]) -> List[TradingAnomaly]:
-        """Detect anomalies in trading patterns and performance"""
-
-        anomalies = []
-
-        # Execution quality anomalies
-        execution_events = [e for e in events if isinstance(e, TradeExecutedEvent)]
-        if execution_events:
-            execution_anomalies = await self.detect_execution_anomalies(execution_events)
-            anomalies.extend(execution_anomalies)
-
-        # Performance anomalies
-        performance_events = [e for e in events if isinstance(e, PerformanceAttributionEvent)]
-        if performance_events:
-            performance_anomalies = await self.detect_performance_anomalies(performance_events)
-            anomalies.extend(performance_anomalies)
-
-        # Risk anomalies
-        risk_events = [e for e in events if isinstance(e, RiskAssessmentEvent)]
-        if risk_events:
-            risk_anomalies = await self.detect_risk_anomalies(risk_events)
-            anomalies.extend(risk_anomalies)
-
-        return anomalies
-
-    async def generate_predictive_insights(self, historical_data: Dict) -> List[PredictiveInsight]:
-        """Generate predictive insights using ML models"""
-
-        insights = []
-
-        # Portfolio performance prediction
-        performance_prediction = await self.predictive_models.predict_portfolio_performance(
-            historical_data['portfolio_returns'],
-            historical_data['market_conditions']
-        )
-        insights.append(PredictiveInsight(
-            type='PORTFOLIO_PERFORMANCE',
-            prediction=performance_prediction,
-            confidence=performance_prediction.confidence,
-            time_horizon=performance_prediction.time_horizon
-        ))
-
-        # Risk prediction
-        risk_prediction = await self.predictive_models.predict_risk_metrics(
-            historical_data['risk_metrics'],
-            historical_data['market_volatility']
-        )
-        insights.append(PredictiveInsight(
-            type='RISK_FORECAST',
-            prediction=risk_prediction,
-            confidence=risk_prediction.confidence,
-            time_horizon=risk_prediction.time_horizon
-        ))
-
-        # Strategy performance prediction
-        strategy_predictions = await self.predictive_models.predict_strategy_performance(
-            historical_data['strategy_returns'],
-            historical_data['market_regime']
-        )
-        for strategy_id, prediction in strategy_predictions.items():
-            insights.append(PredictiveInsight(
-                type='STRATEGY_PERFORMANCE',
-                strategy_id=strategy_id,
-                prediction=prediction,
-                confidence=prediction.confidence,
-                time_horizon=prediction.time_horizon
-            ))
-
-        return insights
-```
-
-### 3. Comprehensive Performance Attribution
-**Responsibility**: Performance Attribution Service
-
-#### Multi-Level Attribution Analysis
-```python
-class ComprehensivePerformanceAttributor:
-    def __init__(self):
-        self.factor_models = FactorModels()
-        self.benchmark_analyzer = BenchmarkAnalyzer()
-        self.risk_attributor = RiskAttributor()
-
-    async def perform_comprehensive_attribution(
-        self,
-        portfolio_returns: PortfolioReturns,
-        benchmark_returns: BenchmarkReturns,
-        factor_exposures: FactorExposures,
-        time_period: TimePeriod
-    ) -> ComprehensiveAttributionReport:
-        """Perform multi-level performance attribution analysis"""
-
-        # Portfolio-level attribution
-        portfolio_attribution = await self.calculate_portfolio_attribution(
-            portfolio_returns, benchmark_returns, time_period
-        )
-
-        # Strategy-level attribution
-        strategy_attribution = await self.calculate_strategy_attribution(
-            portfolio_returns, time_period
-        )
-
-        # Sector-level attribution
-        sector_attribution = await self.calculate_sector_attribution(
-            portfolio_returns, benchmark_returns, time_period
-        )
-
-        # Factor-level attribution
-        factor_attribution = await self.calculate_factor_attribution(
-            portfolio_returns, factor_exposures, time_period
-        )
-
-        # Risk attribution
-        risk_attribution = await self.risk_attributor.calculate_risk_attribution(
-            portfolio_returns, time_period
-        )
-
-        # Security selection vs. allocation attribution
-        selection_allocation = await self.calculate_selection_allocation_attribution(
-            portfolio_returns, benchmark_returns, time_period
-        )
-
-        return ComprehensiveAttributionReport(
-            time_period=time_period,
-            portfolio_attribution=portfolio_attribution,
-            strategy_attribution=strategy_attribution,
-            sector_attribution=sector_attribution,
-            factor_attribution=factor_attribution,
-            risk_attribution=risk_attribution,
-            selection_allocation=selection_allocation,
-            summary_insights=self.generate_attribution_insights(
-                portfolio_attribution, strategy_attribution, factor_attribution
-            )
-        )
-
-    async def calculate_factor_attribution(
-        self,
-        portfolio_returns: PortfolioReturns,
-        factor_exposures: FactorExposures,
-        time_period: TimePeriod
-    ) -> FactorAttribution:
-        """Calculate factor-based performance attribution"""
-
-        # Load factor returns for the period
-        factor_returns = await self.factor_models.get_factor_returns(time_period)
-
-        # Calculate factor contributions
-        factor_contributions = {}
-
-        for factor_name, factor_return in factor_returns.items():
-            exposure = factor_exposures.get_exposure(factor_name)
-            contribution = exposure * factor_return
-            factor_contributions[factor_name] = {
-                'exposure': exposure,
-                'factor_return': factor_return,
-                'contribution': contribution,
-                'contribution_bps': contribution * 10000
-            }
-
-        # Calculate specific return (alpha)
-        total_factor_contribution = sum(fc['contribution'] for fc in factor_contributions.values())
-        specific_return = portfolio_returns.total_return - total_factor_contribution
-
-        return FactorAttribution(
-            factor_contributions=factor_contributions,
-            total_factor_contribution=total_factor_contribution,
-            specific_return=specific_return,
-            factor_model_r_squared=self.calculate_factor_model_r_squared(
-                portfolio_returns, factor_contributions
-            )
-        )
-```
-
-        )
-
-### 4. Real-time Risk Analytics and Monitoring
-**Responsibility**: Risk Reporting Service
-
-#### Real-time Risk Dashboard
-```rust
-pub struct RealTimeRiskAnalyzer {
-    risk_calculator: RiskCalculator,
-    correlation_monitor: CorrelationMonitor,
-    var_calculator: VaRCalculator,
-    stress_tester: StressTester,
-}
-
-impl RealTimeRiskAnalyzer {
-    pub async fn calculate_real_time_risk_metrics(
-        &self,
-        portfolio_state: &PortfolioState,
-        market_data: &MarketData,
-        correlation_matrix: &CorrelationMatrix
-    ) -> RealTimeRiskMetrics {
-        // Calculate portfolio VaR
-        let portfolio_var = self.var_calculator.calculate_portfolio_var(
-            portfolio_state,
-            market_data,
-            correlation_matrix
-        ).await?;
-
-        // Calculate component VaR
-        let component_var = self.var_calculator.calculate_component_var(
-            portfolio_state,
-            correlation_matrix
-        ).await?;
-
-        // Calculate marginal VaR
-        let marginal_var = self.var_calculator.calculate_marginal_var(
-            portfolio_state,
-            correlation_matrix
-        ).await?;
-
-        // Stress testing
-        let stress_results = self.stress_tester.run_stress_scenarios(
-            portfolio_state,
-            market_data
-        ).await?;
-
-        // Correlation monitoring
-        let correlation_alerts = self.correlation_monitor.check_correlation_changes(
-            correlation_matrix
-        ).await?;
-
-        RealTimeRiskMetrics {
-            portfolio_var,
-            component_var,
-            marginal_var,
-            stress_results,
-            correlation_alerts,
-            risk_budget_utilization: self.calculate_risk_budget_utilization(portfolio_state),
-            concentration_metrics: self.calculate_concentration_metrics(portfolio_state),
-            liquidity_metrics: self.calculate_liquidity_metrics(portfolio_state, market_data),
-        }
-    }
-
-    pub async fn generate_risk_alerts(&self, risk_metrics: &RealTimeRiskMetrics) -> Vec<RiskAlert> {
-        let mut alerts = Vec::new();
-
-        // VaR limit alerts
-        if risk_metrics.portfolio_var.one_day > PORTFOLIO_VAR_LIMIT {
-            alerts.push(RiskAlert {
-                alert_type: RiskAlertType::VaRLimitBreach,
-                severity: AlertSeverity::High,
-                message: format!("Portfolio VaR {} exceeds limit {}",
-                    risk_metrics.portfolio_var.one_day, PORTFOLIO_VAR_LIMIT),
-                recommended_action: "Reduce portfolio risk exposure".to_string(),
-            });
-        }
-
-        // Concentration alerts
-        for (instrument, concentration) in &risk_metrics.concentration_metrics.instrument_concentration {
-            if *concentration > CONCENTRATION_LIMIT {
-                alerts.push(RiskAlert {
-                    alert_type: RiskAlertType::ConcentrationRisk,
-                    severity: AlertSeverity::Medium,
-                    message: format!("Instrument {} concentration {} exceeds limit {}",
-                        instrument, concentration, CONCENTRATION_LIMIT),
-                    recommended_action: "Diversify position".to_string(),
-                });
-            }
-        }
-
-        alerts
-    }
-}
-```
-
-### 5. Automated Regulatory Reporting
-**Responsibility**: Compliance Reporting Service
-
-#### Regulatory Report Generation
-```java
-@Service
-public class RegulatoryReportingService {
-
-    private final TradeReportingRepository tradeRepository;
-    private final PositionReportingRepository positionRepository;
-    private final RiskReportingRepository riskRepository;
-
-    public ComplianceReport generateDailyComplianceReport(LocalDate reportDate) {
-        // Generate trade reporting
-        TradeReport tradeReport = generateTradeReport(reportDate);
-
-        // Generate position reporting
-        PositionReport positionReport = generatePositionReport(reportDate);
-
-        // Generate risk reporting
-        RiskReport riskReport = generateRiskReport(reportDate);
-
-        // Generate compliance metrics
-        ComplianceMetrics complianceMetrics = calculateComplianceMetrics(reportDate);
-
-        return ComplianceReport.builder()
-            .reportDate(reportDate)
-            .tradeReport(tradeReport)
-            .positionReport(positionReport)
-            .riskReport(riskReport)
-            .complianceMetrics(complianceMetrics)
-            .generatedAt(Instant.now())
-            .build();
-    }
-
-    public TradeReport generateTradeReport(LocalDate reportDate) {
-        List<TradeExecution> trades = tradeRepository.findTradesByDate(reportDate);
-
-        return TradeReport.builder()
-            .reportDate(reportDate)
-            .totalTrades(trades.size())
-            .totalVolume(calculateTotalVolume(trades))
-            .totalValue(calculateTotalValue(trades))
-            .tradesByInstrument(groupTradesByInstrument(trades))
-            .tradesByStrategy(groupTradesByStrategy(trades))
-            .executionQualityMetrics(calculateExecutionQualityMetrics(trades))
-            .complianceViolations(identifyComplianceViolations(trades))
-            .build();
-    }
-
-    public RiskReport generateRiskReport(LocalDate reportDate) {
-        PortfolioState portfolioState = getPortfolioStateAtDate(reportDate);
-
-        return RiskReport.builder()
-            .reportDate(reportDate)
-            .portfolioVar(calculatePortfolioVaR(portfolioState))
-            .sectorExposures(calculateSectorExposures(portfolioState))
-            .concentrationMetrics(calculateConcentrationMetrics(portfolioState))
-            .leverageMetrics(calculateLeverageMetrics(portfolioState))
-            .liquidityMetrics(calculateLiquidityMetrics(portfolioState))
-            .stressTestResults(runStressTests(portfolioState))
-            .riskLimitUtilization(calculateRiskLimitUtilization(portfolioState))
-            .build();
-    }
-}
-```
-
-### 6. Interactive Visualization and Dashboard Engine
-**Responsibility**: Visualization Service
-
-#### Real-time Dashboard Architecture
-```typescript
-// Real-time Dashboard Component (React/TypeScript)
-interface DashboardProps {
-    userId: string;
-    portfolioId: string;
-    refreshInterval?: number;
-}
-
-export const RealTimeDashboard: React.FC<DashboardProps> = ({
-    userId,
-    portfolioId,
-    refreshInterval = 1000
-}) => {
-    const [dashboardData, setDashboardData] = useState<DashboardData>();
-    const [isConnected, setIsConnected] = useState(false);
-    const wsRef = useRef<WebSocket>();
-
-    useEffect(() => {
-        // Establish WebSocket connection for real-time updates
-        const ws = new WebSocket(`wss://api.quantivista.com/ws/dashboard/${portfolioId}`);
-        wsRef.current = ws;
-
-        ws.onopen = () => {
-            setIsConnected(true);
-            // Subscribe to real-time updates
-            ws.send(JSON.stringify({
-                type: 'SUBSCRIBE',
-                topics: [
-                    'portfolio.performance',
-                    'portfolio.risk',
-                    'portfolio.positions',
-                    'market.alerts',
-                    'execution.quality'
-                ]
-            }));
-        };
-
-        ws.onmessage = (event) => {
-            const update = JSON.parse(event.data);
-            handleRealTimeUpdate(update);
-        };
-
-        ws.onclose = () => {
-            setIsConnected(false);
-            // Implement reconnection logic
-            setTimeout(() => {
-                // Reconnect after 5 seconds
-            }, 5000);
-        };
-
-        return () => {
-            ws.close();
-        };
-    }, [portfolioId]);
-
-    const handleRealTimeUpdate = (update: RealTimeUpdate) => {
-        setDashboardData(prevData => {
-            if (!prevData) return prevData;
-
-            switch (update.type) {
-                case 'PORTFOLIO_PERFORMANCE':
-                    return {
-                        ...prevData,
-                        performance: update.data,
-                        lastUpdated: new Date()
-                    };
-                case 'RISK_METRICS':
-                    return {
-                        ...prevData,
-                        riskMetrics: update.data,
-                        lastUpdated: new Date()
-                    };
-                case 'POSITION_UPDATE':
-                    return {
-                        ...prevData,
-                        positions: updatePositions(prevData.positions, update.data),
-                        lastUpdated: new Date()
-                    };
-                default:
-                    return prevData;
-            }
-        });
-    };
-
-    return (
-        <div className="dashboard-container">
-            <DashboardHeader
-                isConnected={isConnected}
-                lastUpdated={dashboardData?.lastUpdated}
-            />
-
-            <div className="dashboard-grid">
-                <PerformanceWidget
-                    data={dashboardData?.performance}
-                    timeframe="1D"
-                />
-                <RiskWidget
-                    data={dashboardData?.riskMetrics}
-                    alertThresholds={RISK_THRESHOLDS}
-                />
-                <PositionsWidget
-                    positions={dashboardData?.positions}
-                    sortBy="value"
-                />
-                <ExecutionQualityWidget
-                    data={dashboardData?.executionQuality}
-                    benchmark="VWAP"
-                />
-                <MarketAlertsWidget
-                    alerts={dashboardData?.alerts}
-                    maxAlerts={10}
-                />
-                <StrategyPerformanceWidget
-                    strategies={dashboardData?.strategies}
-                    timeframe="1W"
-                />
-            </div>
-        </div>
-    );
-};
-
-// Advanced Charting Component
-export const AdvancedChart: React.FC<ChartProps> = ({
-    data,
-    chartType,
-    indicators,
-    timeframe
-}) => {
-    const chartRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!chartRef.current || !data) return;
-
-        // Use high-performance charting library (e.g., TradingView, D3.js)
-        const chart = createAdvancedChart(chartRef.current, {
-            data,
-            type: chartType,
-            indicators,
-            timeframe,
-            realTimeUpdates: true,
-            interactivity: {
-                zoom: true,
-                pan: true,
-                crosshair: true,
-                tooltip: true
-            },
-            performance: {
-                webGL: true,
-                dataDecimation: true,
-                virtualScrolling: true
-            }
-        });
-
-        return () => {
-            chart.destroy();
-        };
-    }, [data, chartType, indicators, timeframe]);
-
-    return <div ref={chartRef} className="advanced-chart" />;
-};
-```
-
-## Event Contracts
-
-### Events Consumed (from all workflows)
-
-#### From Market Data Workflow
-- `NormalizedMarketDataEvent` - Real-time price and volume data for analytics
-
-#### From Market Intelligence Workflow
-- `NewsSentimentAnalyzedEvent` - Sentiment analysis for market context
-- `MarketImpactAssessmentEvent` - Market impact analysis for reporting
-
-#### From Instrument Analysis Workflow
-- `TechnicalIndicatorComputedEvent` - Technical indicators for charting
-- `CorrelationMatrixUpdatedEvent` - Correlation data for risk analytics
-
-#### From Market Prediction Workflow
-- `InstrumentEvaluatedEvent` - Prediction accuracy tracking
-- `ModelPerformanceEvent` - Model performance analytics
-
-#### From Trading Decision Workflow
-- `TradingSignalEvent` - Signal quality and effectiveness analysis
-
-#### From Portfolio Trading Coordination Workflow
-- `CoordinatedTradingDecisionEvent` - Decision outcome tracking
+### Data Sources (Consumes From)
 
 #### From Portfolio Management Workflow
-- `PerformanceAttributionEvent` - Portfolio performance analysis
-- `PortfolioOptimizationEvent` - Strategy performance tracking
+- **Channel**: Apache Pulsar
+- **Events**: `PerformanceAttributionEvent`, portfolio performance metrics
+- **Purpose**: Portfolio performance and attribution analysis
 
 #### From Trade Execution Workflow
-- `TradeExecutedEvent` - Execution quality and cost analysis
-- `ExecutionQualityEvent` - Transaction cost analysis
+- **Channel**: Apache Pulsar
+- **Events**: `TradeExecutedEvent`, `ExecutionQualityReportEvent`
+- **Purpose**: Trade execution analysis and transaction cost reporting
 
-### Events Produced
+#### From Market Prediction Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `ModelPerformanceEvent`, prediction analytics
+- **Purpose**: Model performance reporting and prediction analysis
 
-#### `AnalyticsInsightEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T11:00:00.000Z",
-  "insight": {
-    "type": "ANOMALY_DETECTED|PATTERN_IDENTIFIED|PERFORMANCE_ALERT|RISK_WARNING",
-    "severity": "LOW|MEDIUM|HIGH|CRITICAL",
-    "title": "Unusual execution cost spike detected",
-    "description": "Execution costs have increased 25% above historical average",
-    "affected_entities": ["AAPL", "momentum_strategy"],
-    "confidence": 0.89,
-    "time_horizon": "immediate"
-  },
-  "analytics": {
-    "detection_method": "ML_ANOMALY_DETECTION",
-    "model_version": "v2.1",
-    "data_sources": ["execution_quality", "market_conditions"],
-    "statistical_significance": 0.95
-  },
-  "recommendations": [
-    "Review execution algorithm parameters",
-    "Consider alternative execution venues",
-    "Monitor market impact more closely"
-  ],
-  "related_events": ["trade-execution-12345", "market-volatility-spike"]
-}
-```
+#### From System Monitoring Workflow
+- **Channel**: Prometheus metrics, structured logs
+- **Data**: System performance metrics, operational data, SLA compliance
+- **Purpose**: Operational reporting and system performance analysis
 
-#### `ComprehensiveReportGeneratedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T11:00:00.100Z",
-  "report": {
-    "report_id": "daily-performance-20250621",
-    "report_type": "DAILY_PERFORMANCE|WEEKLY_RISK|MONTHLY_ATTRIBUTION|REGULATORY_COMPLIANCE",
-    "portfolio_id": "main_portfolio",
-    "time_period": {
-      "start": "2025-06-21T00:00:00.000Z",
-      "end": "2025-06-21T23:59:59.999Z"
-    },
-    "generation_time": "2025-06-21T11:00:00.100Z"
-  },
-  "content": {
-    "executive_summary": {
-      "total_return": 0.025,
-      "benchmark_return": 0.018,
-      "excess_return": 0.007,
-      "sharpe_ratio": 1.85,
-      "max_drawdown": 0.012
-    },
-    "key_insights": [
-      "Momentum strategy outperformed by 150bps",
-      "Technology sector contributed 60% of returns",
-      "Execution quality improved 5% vs last week"
-    ],
-    "risk_summary": {
-      "portfolio_var_1d": 0.025,
-      "risk_budget_utilization": 0.78,
-      "largest_concentration": 0.045,
-      "correlation_risk": "MODERATE"
-    }
-  },
-  "delivery": {
-    "formats": ["PDF", "EXCEL", "JSON"],
-    "recipients": ["portfolio_manager", "risk_manager"],
-    "delivery_status": "DELIVERED",
-    "access_url": "https://reports.quantivista.com/daily-performance-20250621"
-  }
-}
-```
+#### From All Trading Workflows
+- **Channel**: Apache Pulsar, database queries
+- **Data**: Trading decisions, risk metrics, portfolio data, market intelligence
+- **Purpose**: Comprehensive trading platform analytics
+
+### Data Outputs (Provides To)
+
+#### To User Interface Workflow
+- **Channel**: REST APIs, WebSocket streams
+- **Data**: Real-time dashboards, interactive reports, analytics visualizations
+- **Purpose**: User-facing reporting and analytics interfaces
+
+#### To External Stakeholders
+- **Channel**: Email, SFTP, API endpoints
+- **Data**: Regulatory reports, client reports, performance summaries
+- **Purpose**: External reporting and compliance delivery
+
+#### To System Monitoring Workflow
+- **Channel**: Prometheus metrics, structured logs
+- **Data**: Reporting system metrics, processing times, error rates
+- **Purpose**: Reporting system monitoring and performance tracking
+
+#### To Configuration and Strategy Workflow
+- **Channel**: Apache Pulsar
+- **Events**: Performance insights, optimization recommendations
+- **Purpose**: Strategy optimization and configuration recommendations
 
 ## Microservices Architecture
 
-### 1. Data Ingestion Service (Go)
-**Purpose**: Real-time event consumption and stream processing from all workflows
-**Technology**: Go + Apache Pulsar + Apache Kafka + high-throughput processing
-**Scaling**: Horizontal by event volume and topic partitions
-**NFRs**: P99 event processing < 10ms, 99.99% event delivery, handle 1M+ events/sec
+### 1. Performance Analytics Service
+**Technology**: Python
+**Purpose**: Comprehensive performance analysis and attribution
+**Responsibilities**:
+- Portfolio performance calculation and attribution
+- Risk-adjusted return analysis (Sharpe, Sortino, Calmar ratios)
+- Benchmark comparison and tracking error analysis
+- Multi-period performance analysis
+- Performance attribution across multiple dimensions
 
-### 2. Analytics Engine Service (Python)
-**Purpose**: Advanced analytics, ML-enhanced insights, and anomaly detection
-**Technology**: Python + scikit-learn + TensorFlow + Apache Spark + MLflow
-**Scaling**: Horizontal with GPU clusters for ML workloads
-**NFRs**: P99 analytics processing < 500ms, 95% anomaly detection accuracy
+### 2. Risk Analytics Service
+**Technology**: Python
+**Purpose**: Advanced risk measurement and analysis
+**Responsibilities**:
+- Value-at-Risk (VaR) and Expected Shortfall calculation
+- Risk attribution and decomposition analysis
+- Stress testing and scenario analysis
+- Correlation and factor risk analysis
+- Risk-adjusted performance metrics
 
-### 3. Performance Attribution Service (Python)
-**Purpose**: Comprehensive multi-level performance and risk attribution analysis
-**Technology**: Python + NumPy + SciPy + QuantLib + factor models
-**Scaling**: Horizontal by attribution complexity
-**NFRs**: P99 attribution calculation < 2s, accurate factor attribution
+### 3. Regulatory Reporting Service
+**Technology**: Go
+**Purpose**: Automated regulatory and compliance reporting
+**Responsibilities**:
+- SEC, FINRA, and other regulatory report generation
+- Trade reporting and transaction surveillance
+- Position reporting and holdings disclosure
+- Compliance monitoring and violation reporting
+- Audit trail and documentation management
 
-### 4. Risk Reporting Service (Rust)
-**Purpose**: Real-time risk analytics, VaR calculations, and stress testing
-**Technology**: Rust + high-performance numerical computing + parallel processing
-**Scaling**: Horizontal by risk calculation complexity
-**NFRs**: P99 risk calculation < 100ms, real-time risk monitoring, 99.9% accuracy
+### 4. Business Intelligence Service
+**Technology**: Python
+**Purpose**: Strategic analytics and business insights
+**Responsibilities**:
+- Trading strategy effectiveness analysis
+- Market opportunity identification
+- Cost analysis and optimization recommendations
+- Revenue attribution and profitability analysis
+- Competitive analysis and benchmarking
 
-### 5. Compliance Reporting Service (Java)
-**Purpose**: Automated regulatory reporting and audit trail generation
-**Technology**: Java + Spring Boot + regulatory frameworks + document generation
-**Scaling**: Horizontal by report complexity
-**NFRs**: P99 report generation < 5s, 100% regulatory compliance, complete audit trail
+### 5. Real-time Dashboard Service
+**Technology**: TypeScript/React
+**Purpose**: Live monitoring and operational dashboards
+**Responsibilities**:
+- Real-time portfolio monitoring dashboards
+- Trading activity and execution monitoring
+- Risk monitoring and alert dashboards
+- System health and performance dashboards
+- Custom dashboard creation and management
 
-### 6. Visualization Service (TypeScript/React)
-**Purpose**: Interactive dashboards, real-time charts, and advanced visualization
-**Technology**: TypeScript + React + WebSocket + high-performance charting libraries
-**Scaling**: Horizontal by user load, CDN for static assets
-**NFRs**: P99 dashboard load < 2s, real-time updates < 100ms, support 10K+ concurrent users
+### 6. Data Visualization Service
+**Technology**: TypeScript/D3.js
+**Purpose**: Interactive charts and analytical visualizations
+**Responsibilities**:
+- Interactive performance charts and graphs
+- Risk visualization and heat maps
+- Portfolio composition and allocation charts
+- Time-series analysis and trend visualization
+- Custom visualization component library
 
-### 7. Report Generation Service (Python)
-**Purpose**: Automated report creation, scheduling, and multi-format export
-**Technology**: Python + Celery + report templates + PDF/Excel generation
-**Scaling**: Horizontal by report volume, background processing
-**NFRs**: P99 report generation < 30s, support multiple formats, scheduled delivery
+### 7. Report Generation Service
+**Technology**: Go
+**Purpose**: Automated report generation and distribution
+**Responsibilities**:
+- Scheduled report generation and delivery
+- Custom report template management
+- Multi-format report export (PDF, Excel, CSV)
+- Report distribution and notification
+- Report versioning and audit trail
 
-### 8. Data Warehouse Service (SQL)
-**Purpose**: Historical data storage, OLAP, and data lineage tracking
-**Technology**: PostgreSQL + TimescaleDB + Apache Druid + data partitioning
-**Scaling**: Horizontal by data volume, time-based partitioning
-**NFRs**: P99 query response < 5s, 7+ years data retention, 99.99% data integrity
+## Key Integration Points
 
-### 9. Reporting Distribution Service (Go)
-**Purpose**: Report delivery, API management, and user access control
-**Technology**: Go + Apache Pulsar + Redis + gRPC + REST APIs
-**Scaling**: Horizontal by API load
-**NFRs**: P99 API response < 100ms, 99.99% delivery guarantee, secure access
+### Analytics Frameworks
+- **Pandas/NumPy**: Python data analysis and computation
+- **Apache Spark**: Large-scale data processing and analytics
+- **ClickHouse**: High-performance analytical database
+- **Apache Superset**: Business intelligence and visualization
+- **Jupyter Notebooks**: Interactive analysis and research
 
-## Messaging Technology Strategy
+### Visualization Libraries
+- **D3.js**: Custom interactive visualizations
+- **Chart.js**: Standard charting library
+- **Plotly**: Interactive scientific plotting
+- **React Charts**: React-based charting components
+- **Grafana**: Operational dashboards and monitoring
 
-### Apache Pulsar (Primary for Real-time Analytics)
-**Use Cases**:
-- **Real-time event ingestion**: High-throughput consumption from all workflows
-- **Analytics insights**: Immediate distribution of ML-enhanced insights
-- **Dashboard updates**: Real-time dashboard data streaming
-- **Alert notifications**: Critical alerts and anomaly notifications
+### Reporting Tools
+- **Apache POI**: Excel report generation
+- **jsPDF**: PDF report generation
+- **ReportLab**: Python PDF generation
+- **Mustache**: Template-based report generation
+- **Crystal Reports**: Enterprise reporting solution
 
-**Configuration**:
-```yaml
-pulsar:
-  topics:
-    - "reporting-analytics/insights/{severity}/{insight_type}"
-    - "reporting-analytics/dashboards/{user_id}/{portfolio_id}"
-    - "reporting-analytics/alerts/{alert_type}/{urgency}"
-    - "reporting-analytics/reports/{report_type}/{delivery_status}"
-  retention:
-    insights: "90 days"
-    dashboards: "7 days"
-    alerts: "1 year"
-    reports: "7 years"
-  replication:
-    clusters: ["us-east", "us-west", "eu-central"]
-```
+### Data Storage
+- **Analytics Database**: ClickHouse for analytical queries
+- **Report Cache**: Redis for report caching and distribution
+- **Document Store**: MongoDB for unstructured report data
+- **Time-Series Store**: InfluxDB for performance time-series data
 
-### Apache Kafka (Batch Processing & Historical Analytics)
-**Use Cases**:
-- **Historical data processing**: Large-scale batch analytics
-- **Report generation**: Scheduled report processing
-- **Data warehouse ingestion**: ETL processes for historical storage
-- **Regulatory reporting**: Compliance and audit trail processing
+## Service Level Objectives
 
-## Data Architecture Strategy
+### Reporting SLOs
+- **Report Generation**: 95% of reports generated within 5 minutes
+- **Dashboard Load Time**: 90% of dashboards load within 3 seconds
+- **Data Freshness**: 99% of reports based on data less than 15 minutes old
+- **System Availability**: 99.9% uptime during business hours
 
-### Real-time Data Pipeline
-```python
-class RealTimeDataPipeline:
-    def __init__(self):
-        self.stream_processor = StreamProcessor()
-        self.analytics_engine = AnalyticsEngine()
-        self.cache_manager = CacheManager()
+### Quality SLOs
+- **Data Accuracy**: 99.99% accuracy in performance calculations
+- **Report Delivery**: 100% on-time delivery of scheduled reports
+- **Regulatory Compliance**: 100% compliance with reporting requirements
+- **User Satisfaction**: 90% user satisfaction with reporting capabilities
 
-    async def process_real_time_stream(self, event_stream: EventStream):
-        """Process real-time event stream for immediate analytics"""
+## Dependencies
 
-        async for event in event_stream:
-            # Immediate processing for real-time dashboards
-            processed_event = await self.stream_processor.process_event(event)
+### External Dependencies
+- Regulatory reporting systems and databases
+- Client reporting platforms and portals
+- Email and notification services
+- Cloud storage for report archival
 
-            # Update real-time cache
-            await self.cache_manager.update_real_time_metrics(processed_event)
+### Internal Dependencies
+- All trading workflows for operational data
+- Portfolio Management workflow for performance data
+- System Monitoring workflow for operational metrics
+- User Interface workflow for dashboard delivery
 
-            # Trigger real-time analytics
-            insights = await self.analytics_engine.process_real_time_event(processed_event)
+## Performance Analytics Framework
 
-            # Publish insights for immediate consumption
-            for insight in insights:
-                await self.publish_real_time_insight(insight)
+### Return Analysis
+- **Time-Weighted Returns**: Standard performance measurement
+- **Money-Weighted Returns**: Cash flow adjusted returns
+- **Risk-Adjusted Returns**: Sharpe, Sortino, Calmar, Omega ratios
+- **Benchmark Comparison**: Relative performance analysis
+- **Attribution Analysis**: Performance source identification
 
-            # Store for historical analysis
-            await self.store_for_historical_analysis(processed_event)
-```
+### Risk Analytics
+- **Market Risk**: VaR, Expected Shortfall, stress testing
+- **Credit Risk**: Counterparty and issuer risk analysis
+- **Liquidity Risk**: Portfolio liquidity assessment
+- **Operational Risk**: Process and system risk measurement
+- **Model Risk**: Model validation and performance tracking
 
-### Data Warehouse Architecture
-```sql
--- Time-series partitioned tables for performance
-CREATE TABLE portfolio_performance_ts (
-    timestamp TIMESTAMPTZ NOT NULL,
-    portfolio_id VARCHAR(50) NOT NULL,
-    total_return DECIMAL(10,6),
-    benchmark_return DECIMAL(10,6),
-    excess_return DECIMAL(10,6),
-    sharpe_ratio DECIMAL(8,4),
-    volatility DECIMAL(8,4),
-    max_drawdown DECIMAL(8,4)
-) PARTITION BY RANGE (timestamp);
+### Factor Analysis
+- **Style Analysis**: Growth, value, momentum factor exposure
+- **Sector Analysis**: Industry and sector attribution
+- **Geographic Analysis**: Regional and country exposure
+- **Currency Analysis**: Currency exposure and hedging effectiveness
+- **Factor Attribution**: Multi-factor performance attribution
 
--- Create monthly partitions for efficient querying
-CREATE TABLE portfolio_performance_ts_2025_06 PARTITION OF portfolio_performance_ts
-    FOR VALUES FROM ('2025-06-01') TO ('2025-07-01');
+## Regulatory Reporting Framework
 
--- Indexes for fast querying
-CREATE INDEX idx_portfolio_performance_portfolio_time
-    ON portfolio_performance_ts (portfolio_id, timestamp DESC);
+### US Regulatory Requirements
+- **SEC Forms**: 13F, ADV, PF, and other required filings
+- **FINRA Reporting**: Trade reporting and surveillance
+- **CFTC Reporting**: Derivatives and commodity reporting
+- **Federal Reserve**: Bank holding company reporting
+- **State Regulators**: State-specific reporting requirements
 
--- Trade execution analytics table
-CREATE TABLE trade_execution_analytics (
-    trade_id VARCHAR(50) PRIMARY KEY,
-    execution_timestamp TIMESTAMPTZ NOT NULL,
-    instrument_id VARCHAR(20) NOT NULL,
-    strategy_id VARCHAR(50),
-    execution_quality_score DECIMAL(4,3),
-    implementation_shortfall_bps DECIMAL(8,2),
-    market_impact_bps DECIMAL(8,2),
-    timing_cost_bps DECIMAL(8,2),
-    total_cost_bps DECIMAL(8,2),
-    venue VARCHAR(50),
-    broker VARCHAR(50)
-);
+### International Compliance
+- **MiFID II**: European investment services regulation
+- **AIFMD**: Alternative investment fund reporting
+- **UCITS**: European mutual fund reporting
+- **EMIR**: European derivatives reporting
+- **Basel III**: International banking regulation
 
--- Materialized views for fast dashboard queries
-CREATE MATERIALIZED VIEW daily_portfolio_summary AS
-SELECT
-    DATE(timestamp) as report_date,
-    portfolio_id,
-    AVG(total_return) as avg_return,
-    AVG(sharpe_ratio) as avg_sharpe,
-    MAX(max_drawdown) as max_drawdown,
-    AVG(volatility) as avg_volatility
-FROM portfolio_performance_ts
-WHERE timestamp >= CURRENT_DATE - INTERVAL '30 days'
-GROUP BY DATE(timestamp), portfolio_id;
+### Audit and Documentation
+- **Audit Trail**: Complete transaction and decision audit trail
+- **Documentation**: Comprehensive process documentation
+- **Record Keeping**: Regulatory record retention requirements
+- **Compliance Monitoring**: Ongoing compliance surveillance
+- **Violation Reporting**: Regulatory violation identification and reporting
 
--- Refresh materialized views automatically
-CREATE OR REPLACE FUNCTION refresh_daily_summaries()
-RETURNS void AS $$
-BEGIN
-    REFRESH MATERIALIZED VIEW CONCURRENTLY daily_portfolio_summary;
-END;
-$$ LANGUAGE plpgsql;
+## Business Intelligence Capabilities
 
--- Schedule automatic refresh
-SELECT cron.schedule('refresh-daily-summaries', '0 1 * * *', 'SELECT refresh_daily_summaries();');
-```
+### Strategic Analytics
+- **Strategy Performance**: Trading strategy effectiveness analysis
+- **Market Analysis**: Market opportunity and trend identification
+- **Competitive Intelligence**: Peer comparison and benchmarking
+- **Cost Analysis**: Transaction cost and operational cost analysis
+- **Revenue Attribution**: Revenue source identification and optimization
 
-## Advanced Analytics Features
+### Operational Analytics
+- **Process Efficiency**: Workflow and process optimization
+- **Resource Utilization**: System and human resource analysis
+- **Quality Metrics**: Error rates and quality improvement
+- **Capacity Planning**: Resource capacity and scaling analysis
+- **Performance Optimization**: System and process improvement
 
-### Machine Learning Pipeline
-```python
-class MLAnalyticsPipeline:
-    def __init__(self):
-        self.feature_engineer = FeatureEngineer()
-        self.model_manager = ModelManager()
-        self.anomaly_detector = AnomalyDetector()
+## Real-time Dashboard Framework
 
-    async def run_ml_analytics(self, historical_data: Dict) -> MLAnalyticsResults:
-        """Run comprehensive ML analytics pipeline"""
+### Portfolio Dashboards
+- **Portfolio Overview**: Real-time portfolio status and performance
+- **Risk Dashboard**: Live risk monitoring and alerts
+- **Performance Dashboard**: Real-time performance tracking
+- **Allocation Dashboard**: Portfolio allocation and exposure monitoring
+- **Trading Dashboard**: Live trading activity and execution monitoring
 
-        # Feature engineering
-        features = await self.feature_engineer.create_features(historical_data)
+### Operational Dashboards
+- **System Health**: Real-time system status and performance
+- **Trading Operations**: Live trading desk monitoring
+- **Risk Management**: Real-time risk limit monitoring
+- **Compliance Dashboard**: Regulatory compliance monitoring
+- **Executive Dashboard**: High-level business metrics and KPIs
 
-        # Anomaly detection
-        anomalies = await self.anomaly_detector.detect_anomalies(features)
+## Data Quality and Governance
 
-        # Performance prediction
-        performance_predictions = await self.model_manager.predict_performance(features)
+### Data Quality Management
+- **Data Validation**: Comprehensive data quality checks
+- **Data Lineage**: Complete data source tracking
+- **Data Reconciliation**: Cross-source data consistency validation
+- **Error Detection**: Automated error identification and alerting
+- **Quality Metrics**: Data quality scoring and monitoring
 
-        # Risk prediction
-        risk_predictions = await self.model_manager.predict_risk(features)
+### Data Governance
+- **Data Standards**: Consistent data definitions and standards
+- **Access Control**: Role-based data access and security
+- **Data Privacy**: Personal data protection and anonymization
+- **Retention Policies**: Data retention and archival policies
+- **Audit Trail**: Complete data access and modification tracking
 
-        # Strategy optimization recommendations
-        optimization_recommendations = await self.generate_optimization_recommendations(
-            features, performance_predictions, risk_predictions
-        )
+## Visualization and User Experience
 
-        return MLAnalyticsResults(
-            anomalies=anomalies,
-            performance_predictions=performance_predictions,
-            risk_predictions=risk_predictions,
-            optimization_recommendations=optimization_recommendations,
-            feature_importance=self.feature_engineer.get_feature_importance(),
-            model_confidence=self.model_manager.get_model_confidence()
-        )
-```
+### Interactive Visualizations
+- **Time-Series Charts**: Performance and risk over time
+- **Heat Maps**: Correlation and risk visualization
+- **Scatter Plots**: Risk-return and factor analysis
+- **Tree Maps**: Portfolio composition and allocation
+- **Geographic Maps**: Regional exposure and performance
 
-## Integration Points with Other Workflows
+### User Experience Design
+- **Responsive Design**: Multi-device compatibility
+- **Accessibility**: WCAG compliance for accessibility
+- **Performance**: Fast loading and responsive interactions
+- **Customization**: User-customizable dashboards and reports
+- **Mobile Optimization**: Mobile-friendly reporting and analytics
 
-### Consumes From (All Workflows)
-- **Market Data Workflow**: Real-time market data for analytics context
-- **Market Intelligence Workflow**: Sentiment and impact data for market context
-- **Instrument Analysis Workflow**: Technical indicators and correlation data
-- **Market Prediction Workflow**: Prediction accuracy and model performance
-- **Trading Decision Workflow**: Signal quality and effectiveness metrics
-- **Portfolio Trading Coordination Workflow**: Decision coordination effectiveness
-- **Portfolio Management Workflow**: Portfolio performance and attribution data
-- **Trade Execution Workflow**: Execution quality and cost analysis
+## Security and Compliance
 
-### Produces For
-- **User Interface Workflow**: Dashboard data, reports, and visualizations
-- **All Workflows**: Analytics insights and performance feedback for optimization
+### Data Security
+- **Encryption**: Data encryption at rest and in transit
+- **Access Control**: Role-based access control and authentication
+- **Audit Logging**: Comprehensive access and activity logging
+- **Data Masking**: Sensitive data protection and anonymization
+- **Secure Transmission**: Secure report delivery and distribution
 
-## Implementation Roadmap
-
-### Phase 1: Core Analytics Infrastructure (Weeks 1-8)
-- Deploy Data Ingestion Service with event stream processing
-- Implement Analytics Engine Service with basic ML capabilities
-- Set up Data Warehouse Service with time-series optimization
-- Basic real-time dashboard capabilities
-
-### Phase 2: Advanced Analytics & Visualization (Weeks 9-16)
-- Deploy Performance Attribution Service with factor models
-- Implement Risk Reporting Service with real-time calculations
-- Add Visualization Service with interactive dashboards
-- Advanced anomaly detection and pattern recognition
-
-### Phase 3: Regulatory & Compliance (Weeks 17-24)
-- Deploy Compliance Reporting Service with regulatory templates
-- Implement automated audit trail generation
-- Add comprehensive regulatory reporting capabilities
-- Advanced data governance and lineage tracking
-
-### Phase 4: AI-Enhanced Analytics (Weeks 25-32)
-- Machine learning-enhanced insights and predictions
-- Predictive analytics for performance and risk
-- Advanced optimization recommendations
-- Natural language report generation and insights
-```
+### Regulatory Compliance
+- **SOX Compliance**: Sarbanes-Oxley financial reporting compliance
+- **GDPR Compliance**: European data protection regulation
+- **CCPA Compliance**: California consumer privacy act
+- **Financial Regulations**: Industry-specific compliance requirements
+- **International Standards**: Global regulatory compliance

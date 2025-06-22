@@ -1,255 +1,280 @@
 # CI/CD Pipeline Workflow
 
 ## Overview
-The CI/CD Pipeline Workflow is responsible for automated software delivery across the entire QuantiVista platform, ensuring reliable, secure, and efficient deployment of all microservices and infrastructure components. This workflow handles code integration, automated testing, security scanning, deployment orchestration, and environment management across development, staging, and production environments.
+The CI/CD Pipeline Workflow provides comprehensive continuous integration and deployment capabilities for the QuantiVista trading platform. It ensures code quality, security, and reliable deployment across all environments while maintaining the high availability requirements of financial trading systems.
 
-## Key Challenges Addressed
-- **Multi-Service Deployment Coordination**: Orchestrating deployments across 50+ microservices with complex dependencies
-- **Financial System Security**: Implementing comprehensive security scanning and compliance validation
-- **Zero-Downtime Deployments**: Ensuring continuous trading operations during deployments
-- **Environment Consistency**: Maintaining identical configurations across dev, staging, and production
-- **Rollback Capabilities**: Fast and reliable rollback mechanisms for failed deployments
-- **Compliance and Audit**: Complete audit trail for regulatory compliance requirements
+## Purpose and Responsibilities
 
-## Core Responsibilities
-- **Continuous Integration**: Automated code integration, testing, and quality validation
-- **Security and Compliance**: Comprehensive security scanning and regulatory compliance checks
-- **Deployment Orchestration**: Coordinated deployment across multiple environments and services
-- **Environment Management**: Automated provisioning and management of development environments
-- **Release Management**: Version control, release planning, and deployment coordination
-- **Monitoring Integration**: Deployment health monitoring and automated rollback triggers
+### Primary Purpose
+Automate the build, test, security validation, and deployment processes for all QuantiVista platform components with financial-grade reliability and security.
 
-## NOT This Workflow's Responsibilities
-- **Infrastructure Provisioning**: Cloud resource provisioning (belongs to Infrastructure as Code Workflow)
-- **Application Monitoring**: Runtime monitoring and alerting (belongs to System Monitoring Workflow)
-- **Business Logic**: Trading algorithms and strategies (belongs to respective workflows)
-- **Data Management**: Database schema management (belongs to respective workflows)
+### Core Responsibilities
+- **Continuous Integration**: Automated code quality validation and testing
+- **Security Scanning**: Comprehensive security analysis and vulnerability detection
+- **Automated Testing**: Multi-level testing including unit, integration, and end-to-end tests
+- **Deployment Automation**: Zero-downtime deployment across multiple environments
+- **Quality Gates**: Enforce quality standards and compliance requirements
+- **Rollback Management**: Automated rollback capabilities for failed deployments
 
-## Pipeline Architecture
+### Workflow Boundaries
+- **Manages**: Code integration, testing, and deployment processes
+- **Does NOT**: Develop application code or manage infrastructure provisioning
+- **Focus**: Development lifecycle automation and deployment reliability
 
-### Multi-Environment Strategy
-```
-Feature Branch → Development → Staging → Production
-     ↓              ↓           ↓          ↓
-   Unit Tests   Integration   E2E Tests  Blue/Green
-   Security     Tests         Security   Deployment
-   Scanning     Performance   Validation
-                Testing
-```
+## Data Flow and Integration
 
-### Service Deployment Dependencies
-```
-Infrastructure Services (Kafka, Redis, PostgreSQL)
-           ↓
-Core Platform Services (Auth, Config, Monitoring)
-           ↓
-Data Services (Market Data, Intelligence, Analysis)
-           ↓
-Trading Services (Prediction, Decision, Coordination)
-           ↓
-Execution Services (Trade Execution, Portfolio Management)
-           ↓
-User Services (Reporting, UI)
-```
+### Data Sources (Consumes From)
 
-## Workflow Sequence
+#### From Development Teams
+- **Channel**: Git repositories (GitHub, GitLab)
+- **Events**: Code commits, pull requests, merge events
+- **Purpose**: Source code changes triggering CI/CD pipelines
 
-### 1. Continuous Integration Pipeline
-**Responsibility**: CI Service
+#### From Infrastructure as Code Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `InfrastructureProvisionedEvent`
+- **Purpose**: Infrastructure readiness for deployment
 
-#### GitHub Actions CI Configuration
-```yaml
-name: Continuous Integration
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+#### From System Monitoring Workflow
+- **Channel**: Apache Pulsar
+- **Events**: System health status, performance metrics
+- **Purpose**: Deployment environment validation and health checks
 
-jobs:
-  code-quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Code Quality Checks
-        run: |
-          make lint
-          make format-check
-          make complexity-check
-          make dependency-scan
+#### From Configuration and Strategy Workflow
+- **Channel**: Configuration repositories, REST APIs
+- **Data**: Deployment configurations, environment settings
+- **Purpose**: Environment-specific deployment parameters
 
-  unit-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [market-data, trading-decision, portfolio-management, trade-execution]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Unit Tests
-        run: |
-          cd services/${{ matrix.service }}
-          make test-unit
-          make coverage-report
+### Data Outputs (Provides To)
 
-  security-scanning:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: SAST Scanning
-        uses: github/codeql-action/analyze@v2
-      - name: Container Security Scanning
-        run: make security-scan-containers
-      - name: Secrets Scanning
-        uses: trufflesecurity/trufflehog@main
+#### To System Monitoring Workflow
+- **Channel**: Apache Pulsar
+- **Events**: `DeploymentStartedEvent`, `DeploymentCompletedEvent`
+- **Purpose**: Deployment status and health validation triggers
 
-  build-and-push:
-    needs: [code-quality, unit-tests, security-scanning]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [market-data, trading-decision, portfolio-management, trade-execution]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Container Image
-        run: |
-          cd services/${{ matrix.service }}
-          docker build -t quantivista/${{ matrix.service }}:${{ github.sha }} .
-      - name: Push to Registry
-        run: |
-          docker push quantivista/${{ matrix.service }}:${{ github.sha }}
-```
+#### To Infrastructure as Code Workflow
+- **Channel**: Apache Pulsar
+- **Events**: Deployment requirements, scaling requests
+- **Purpose**: Infrastructure scaling and optimization requests
 
-### 2. Automated Testing Pipeline
-**Responsibility**: Testing Service
+#### To All Development Teams
+- **Channel**: Slack, email, GitHub notifications
+- **Events**: Build status, deployment notifications, quality reports
+- **Purpose**: Development team feedback and status updates
 
-#### Multi-Level Testing Strategy
-- **Unit Tests**: Fast feedback for individual components
-- **Integration Tests**: Service-to-service interaction validation
-- **End-to-End Tests**: Complete trading workflow validation
-- **Performance Tests**: Latency and throughput validation
-- **Security Tests**: Vulnerability and penetration testing
+#### To Reporting and Analytics Workflow
+- **Channel**: Apache Pulsar
+- **Events**: Deployment metrics, quality metrics, performance data
+- **Purpose**: Development and deployment analytics
 
-### 3. Blue/Green Deployment Strategy
-**Responsibility**: Deployment Service
+## Microservices Architecture
 
-#### Zero-Downtime Deployment Process
-1. **Deploy to Inactive Environment**: Deploy new version to blue/green inactive slot
-2. **Health Validation**: Comprehensive health checks on new deployment
-3. **Smoke Testing**: Critical functionality validation
-4. **Traffic Switch**: Gradual traffic migration to new deployment
-5. **Monitoring**: Post-deployment health monitoring
-6. **Rollback Capability**: Automatic rollback on issues
+### 1. Build Orchestration Service
+**Technology**: Go
+**Purpose**: Coordinate and manage CI/CD pipeline execution
+**Responsibilities**:
+- Pipeline workflow orchestration
+- Build job scheduling and execution
+- Resource allocation and management
+- Pipeline status tracking and reporting
+- Parallel build coordination
 
-### 4. Security and Compliance Pipeline
-**Responsibility**: Security Service
+### 2. Code Quality Service
+**Technology**: Go
+**Purpose**: Automated code quality analysis and enforcement
+**Responsibilities**:
+- Static code analysis (SonarQube, CodeClimate)
+- Code coverage measurement and reporting
+- Linting and formatting validation
+- Complexity analysis and reporting
+- Quality gate enforcement
 
-#### Comprehensive Security Validation
-- **SAST (Static Analysis)**: Code vulnerability scanning
-- **DAST (Dynamic Analysis)**: Runtime security testing
-- **Container Scanning**: Image vulnerability assessment
-- **Compliance Validation**: SOX, PCI-DSS, GDPR compliance checks
-- **Policy Enforcement**: Security policy validation
+### 3. Security Scanning Service
+**Technology**: Python
+**Purpose**: Comprehensive security analysis and vulnerability detection
+**Responsibilities**:
+- Static Application Security Testing (SAST)
+- Dynamic Application Security Testing (DAST)
+- Container security scanning
+- Dependency vulnerability scanning
+- Secrets detection and prevention
 
-### 5. Environment Management
-**Responsibility**: Environment Service
+### 4. Test Automation Service
+**Technology**: Go
+**Purpose**: Automated testing across multiple levels and environments
+**Responsibilities**:
+- Unit test execution and reporting
+- Integration test orchestration
+- End-to-end test automation
+- Performance test execution
+- Test result aggregation and analysis
 
-#### Dynamic Environment Provisioning
-- **Feature Branch Environments**: Ephemeral environments for PR testing
-- **Staging Environments**: Production-like testing environments
-- **Production Environments**: High-availability production deployments
-- **Cleanup Automation**: Automatic cleanup of expired environments
+### 5. Deployment Service
+**Technology**: Go
+**Purpose**: Zero-downtime deployment management
+**Responsibilities**:
+- Blue-green deployment orchestration
+- Canary deployment management
+- Rolling update coordination
+- Health check validation
+- Rollback automation
 
-### 6. Release Management
-**Responsibility**: Release Service
+### 6. Artifact Management Service
+**Technology**: Go
+**Purpose**: Build artifact storage and distribution
+**Responsibilities**:
+- Container image building and storage
+- Artifact versioning and tagging
+- Multi-registry distribution
+- Artifact security scanning
+- Cleanup and retention management
 
-#### Coordinated Release Orchestration
-- **Dependency Management**: Service deployment order coordination
-- **Release Planning**: Version coordination across services
-- **Rollback Management**: Automated rollback capabilities
-- **Release Notifications**: Stakeholder communication
+### 7. Notification Service
+**Technology**: Go
+**Purpose**: Comprehensive notification and reporting
+**Responsibilities**:
+- Multi-channel notification delivery
+- Status dashboard management
+- Metrics collection and reporting
+- Alert management and escalation
+- Integration with external tools
 
-## Event Contracts
+## Key Integration Points
 
-### Events Produced
+### Source Control Integration
+- **GitHub Actions**: Primary CI/CD platform
+- **GitLab CI**: Alternative CI/CD platform
+- **Git Hooks**: Pre-commit and post-commit automation
+- **Branch Protection**: Automated branch protection rules
+- **Pull Request Automation**: Automated PR validation and testing
 
-#### `DeploymentStartedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:00:00.000Z",
-  "deployment": {
-    "deploymentId": "deploy-12345",
-    "serviceName": "trading-decision-service",
-    "version": "v2.1.0",
-    "environment": "production",
-    "deploymentType": "blue_green",
-    "triggeredBy": "release-manager",
-    "estimatedDuration": "00:15:00"
-  },
-  "pipeline": {
-    "pipelineId": "pipeline-67890",
-    "buildNumber": 1234,
-    "commitSha": "abc123def456",
-    "branch": "main"
-  }
-}
-```
+### Quality Tools
+- **SonarQube**: Code quality and security analysis
+- **CodeClimate**: Automated code review and quality metrics
+- **ESLint/Prettier**: JavaScript/TypeScript linting and formatting
+- **Golint/Gofmt**: Go code linting and formatting
+- **Clippy/Rustfmt**: Rust code linting and formatting
 
-#### `DeploymentCompletedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:15:00.000Z",
-  "deployment": {
-    "deploymentId": "deploy-12345",
-    "serviceName": "trading-decision-service",
-    "version": "v2.1.0",
-    "environment": "production",
-    "status": "SUCCESS",
-    "actualDuration": "00:12:30"
-  },
-  "results": {
-    "testsExecuted": 1250,
-    "testsPassed": 1250,
-    "securityScore": 0.95,
-    "performanceScore": 0.88,
-    "healthChecksPassed": true
-  },
-  "rollback": {
-    "rollbackCapable": true,
-    "previousVersion": "v2.0.5"
-  }
-}
-```
+### Security Tools
+- **Snyk**: Dependency vulnerability scanning
+- **Trivy**: Container security scanning
+- **GitLeaks**: Secrets detection and prevention
+- **OWASP ZAP**: Dynamic security testing
+- **Bandit**: Python security linting
 
-#### `SecurityScanCompletedEvent`
-```json
-{
-  "eventId": "uuid",
-  "timestamp": "2025-06-21T10:05:00.000Z",
-  "scan": {
-    "scanId": "security-scan-789",
-    "serviceName": "trading-decision-service",
-    "version": "v2.1.0",
-    "scanType": "COMPREHENSIVE",
-    "overallScore": 0.95
-  },
-  "results": {
-    "sastResults": {
-      "criticalIssues": 0,
-      "highIssues": 1,
-      "mediumIssues": 3,
-      "lowIssues": 5
-    },
-    "containerResults": {
-      "vulnerabilities": 2,
-      "highestSeverity": "MEDIUM"
-    },
-    "complianceResults": {
-      "sox": "COMPLIANT",
-      "pci_dss": "COMPLIANT",
-      "gdpr": "COMPLIANT"
-    }
-  }
-}
-```
+### Deployment Platforms
+- **Kubernetes**: Container orchestration platform
+- **ArgoCD**: GitOps continuous deployment
+- **Helm**: Kubernetes package management
+- **Docker**: Container runtime and image management
+- **Istio**: Service mesh for traffic management
+
+## Service Level Objectives
+
+### Pipeline SLOs
+- **Build Time**: 95% of builds completed within 10 minutes
+- **Test Execution**: 90% of test suites completed within 15 minutes
+- **Deployment Time**: 95% of deployments completed within 5 minutes
+- **Pipeline Availability**: 99.9% CI/CD system uptime
+
+### Quality SLOs
+- **Test Coverage**: Minimum 80% code coverage for all services
+- **Security Scanning**: 100% of builds scanned for vulnerabilities
+- **Quality Gates**: 100% compliance with quality gate requirements
+- **Deployment Success**: 99% successful deployment rate
+
+## Dependencies
+
+### External Dependencies
+- Git repositories for source code management
+- Container registries for image storage
+- Cloud platforms for deployment targets
+- Security scanning services and databases
+
+### Internal Dependencies
+- Infrastructure as Code workflow for deployment environments
+- System Monitoring workflow for health validation
+- Configuration and Strategy workflow for deployment parameters
+- All development teams for source code and configurations
+
+## Pipeline Stages
+
+### Continuous Integration
+- **Code Checkout**: Source code retrieval and preparation
+- **Dependency Installation**: Package and dependency management
+- **Code Quality**: Static analysis and linting
+- **Unit Testing**: Automated unit test execution
+- **Security Scanning**: Vulnerability and secrets scanning
+- **Build Artifacts**: Container image and package building
+
+### Continuous Deployment
+- **Environment Preparation**: Target environment validation
+- **Integration Testing**: Automated integration test execution
+- **Staging Deployment**: Deployment to staging environment
+- **End-to-End Testing**: Comprehensive system testing
+- **Production Deployment**: Zero-downtime production deployment
+- **Post-Deployment Validation**: Health checks and monitoring
+
+## Deployment Strategies
+
+### Blue-Green Deployment
+- **Parallel Environments**: Maintain two identical production environments
+- **Traffic Switching**: Instant traffic cutover between environments
+- **Rollback Capability**: Immediate rollback to previous version
+- **Zero Downtime**: No service interruption during deployment
+- **Validation**: Comprehensive testing before traffic switch
+
+### Canary Deployment
+- **Gradual Rollout**: Progressive traffic routing to new version
+- **Risk Mitigation**: Limited exposure to potential issues
+- **Monitoring**: Real-time performance and error monitoring
+- **Automated Rollback**: Automatic rollback on performance degradation
+- **A/B Testing**: Performance comparison between versions
+
+## Security Framework
+
+### Security Scanning
+- **SAST**: Static application security testing
+- **DAST**: Dynamic application security testing
+- **Container Scanning**: Container image vulnerability assessment
+- **Dependency Scanning**: Third-party dependency vulnerability analysis
+- **Secrets Detection**: Automated secrets and credential detection
+
+### Compliance
+- **SOC 2**: Security and availability compliance
+- **PCI DSS**: Payment card industry compliance
+- **GDPR**: Data protection regulation compliance
+- **Financial Regulations**: Trading platform specific compliance
+- **Audit Trail**: Comprehensive deployment audit logging
+
+## Quality Assurance
+
+### Testing Strategy
+- **Unit Tests**: Individual component testing
+- **Integration Tests**: Service integration testing
+- **End-to-End Tests**: Complete workflow testing
+- **Performance Tests**: Load and stress testing
+- **Security Tests**: Automated security validation
+
+### Quality Gates
+- **Code Coverage**: Minimum coverage thresholds
+- **Security Scan**: Zero critical vulnerabilities
+- **Performance**: Response time and throughput requirements
+- **Compliance**: Regulatory and policy compliance
+- **Documentation**: Code and API documentation requirements
+
+## Monitoring and Observability
+
+### Pipeline Monitoring
+- **Build Metrics**: Build time, success rate, failure analysis
+- **Deployment Metrics**: Deployment frequency, lead time, recovery time
+- **Quality Metrics**: Test coverage, defect density, code quality scores
+- **Security Metrics**: Vulnerability detection and remediation time
+- **Performance Metrics**: Pipeline execution time and resource usage
+
+### Alerting
+- **Build Failures**: Immediate notification of build failures
+- **Security Issues**: Critical security vulnerability alerts
+- **Deployment Issues**: Deployment failure and rollback alerts
+- **Quality Degradation**: Code quality and coverage alerts
+- **Performance Issues**: Pipeline performance degradation alerts
