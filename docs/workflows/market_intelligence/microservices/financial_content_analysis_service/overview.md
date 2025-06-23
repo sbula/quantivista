@@ -1,13 +1,13 @@
-# NLP Processing Service
+# Financial Content Analysis Service
 
 ## Responsibility
-Advanced natural language processing for financial text analysis. Performs text preprocessing, tokenization, named entity recognition, topic modeling, and semantic analysis for market intelligence content.
+Advanced financial content analysis for market intelligence extraction. Performs text preprocessing, tokenization, named entity recognition, topic modeling, and semantic analysis to transform financial documents and news into structured intelligence.
 
 ## Technology Stack
 - **Language**: Python + spaCy + Transformers + NLTK
 - **Libraries**: spaCy, Transformers, NLTK, scikit-learn, Gensim
 - **Scaling**: Horizontal by text processing volume, GPU acceleration
-- **NFRs**: P99 processing < 500ms, 95% NLP accuracy, multi-language support
+- **NFRs**: P99 processing < 500ms, 95% financial content analysis accuracy, multi-language support
 
 ## API Specification
 
@@ -34,7 +34,7 @@ enum LanguageCode {
 }
 
 // Data Models
-struct NLPProcessingRequest {
+struct FinancialContentAnalysisRequest {
     content_id: String
     text: String
     tasks: List<ProcessingTask>
@@ -42,7 +42,7 @@ struct NLPProcessingRequest {
     domain_context: String  // "financial", "general", "technical"
 }
 
-struct NLPProcessingResponse {
+struct FinancialContentAnalysisResponse {
     content_id: String
     language_detected: LanguageCode
     processing_results: Map<ProcessingTask, ProcessingResult>
@@ -81,31 +81,31 @@ struct SemanticAnalysis {
 }
 
 // REST API Endpoints
-POST /api/v1/nlp/process
-    Request: NLPProcessingRequest
-    Response: NLPProcessingResponse
+POST /api/v1/financial-content/analyze
+    Request: FinancialContentAnalysisRequest
+    Response: FinancialContentAnalysisResponse
 
-POST /api/v1/nlp/batch-process
-    Request: List<NLPProcessingRequest>
-    Response: List<NLPProcessingResponse>
+POST /api/v1/financial-content/batch-analyze
+    Request: List<FinancialContentAnalysisRequest>
+    Response: List<FinancialContentAnalysisResponse>
 
-GET /api/v1/nlp/models/status
+GET /api/v1/financial-content/models/status
     Response: ModelStatus
 
-POST /api/v1/nlp/extract-entities
+POST /api/v1/financial-content/extract-entities
     Request: EntityExtractionRequest
     Response: List<NamedEntity>
 ```
 
 ### Event Output
 ```pseudo
-Event nlp_processing_completed {
+Event financial_content_analyzed {
     event_id: String
     timestamp: DateTime
-    nlp_processed: NLPProcessedData
+    content_analyzed: FinancialContentAnalyzedData
 }
 
-struct NLPProcessedData {
+struct FinancialContentAnalyzedData {
     content_id: String
     language_detected: String
     processing_results: ProcessingResultsData
@@ -150,7 +150,7 @@ struct SemanticAnalysisData {
 {
     event_id: "uuid",
     timestamp: "2025-06-21T10:00:00.000Z",
-    nlp_processed: {
+    content_analyzed: {
         content_id: "news_article_001",
         language_detected: "EN",
         processing_results: {
@@ -196,7 +196,7 @@ struct SemanticAnalysisData {
 
 ### PostgreSQL (Command Side)
 ```pseudo
-Table nlp_models {
+Table financial_content_models {
     id: UUID (primary key, auto-generated)
     model_name: String (required, max_length: 100)
     model_type: String (required, max_length: 50)
@@ -208,7 +208,7 @@ Table nlp_models {
     created_at: Timestamp (default: now)
 }
 
-Table processing_tasks {
+Table content_analysis_tasks {
     id: UUID (primary key, auto-generated)
     content_id: String (required, max_length: 100)
     task_type: String (required, max_length: 50)
@@ -222,7 +222,7 @@ Table processing_tasks {
 
 ### TimescaleDB (Query Side)
 ```pseudo
-Table nlp_processing_ts {
+Table financial_content_analysis_ts {
     timestamp: Timestamp (required, partition_key)
     content_id: String (required, max_length: 100)
     language: String (required, max_length: 10)
@@ -239,9 +239,9 @@ Table nlp_processing_ts {
 
 ### Redis Caching
 ```pseudo
-struct NLPCache {
-    // Model cache: "nlp_model:{model_name}" -> ModelData
-    // Processing cache: "nlp_result:{content_hash}" -> ProcessingResult
+struct FinancialContentCache {
+    // Model cache: "financial_content_model:{model_name}" -> ModelData
+    // Processing cache: "content_analysis_result:{content_hash}" -> ProcessingResult
     // Entity cache: "entities:{content_id}" -> List<NamedEntity>
     // Topic cache: "topics:{content_id}" -> List<Topic>
 }
@@ -252,22 +252,22 @@ struct NLPCache {
 ### Priority: **HIGH** (Core intelligence processing)
 ### Estimated Time: **5-6 weeks**
 
-#### Week 1-2: Core NLP Engine
+#### Week 1-2: Core Financial Content Analysis Engine
 - Python service setup with spaCy and Transformers
-- Basic text processing pipeline
-- Named entity recognition implementation
+- Basic financial text processing pipeline
+- Named entity recognition for financial entities
 - **Effort**: 2 ML engineers × 2 weeks = 4 dev-weeks
 
-#### Week 3-4: Advanced NLP Features
-- Topic modeling with Gensim
-- Semantic analysis and text classification
-- Multi-language support
+#### Week 3-4: Advanced Financial Analysis Features
+- Topic modeling with financial domain focus
+- Semantic analysis and financial text classification
+- Multi-language support for financial content
 - **Effort**: 2 ML engineers × 2 weeks = 4 dev-weeks
 
 #### Week 5-6: Optimization & Integration
 - GPU acceleration and performance optimization
-- Integration with content collection services
-- Model training and validation pipeline
+- Integration with news and content collection services
+- Financial domain model training and validation pipeline
 - **Effort**: 2 developers × 2 weeks = 4 dev-weeks
 
 ### Total Effort: **12 dev-weeks**
@@ -276,7 +276,7 @@ struct NLPCache {
 
 ### Success Criteria:
 - P99 processing latency < 500ms
-- 95% NLP accuracy across tasks
+- 95% financial content analysis accuracy across tasks
 - Multi-language support (6+ languages)
-- Support for 10K+ documents per hour
-- Real-time processing capability
+- Support for 10K+ financial documents per hour
+- Real-time financial content processing capability
