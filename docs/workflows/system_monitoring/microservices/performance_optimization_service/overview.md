@@ -6,6 +6,9 @@ AI-driven performance analysis and optimization recommendations for QuantiVista 
 ## Technology Stack
 - **Language**: Python + TensorFlow + scikit-learn + optimization libraries
 - **Libraries**: TensorFlow, scikit-learn, pandas, numpy, optimization frameworks
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by optimization complexity and service count
 - **NFRs**: P99 optimization analysis < 5s, 90%+ recommendation accuracy, automated tuning
 

@@ -6,6 +6,9 @@ Comprehensive incident lifecycle management with automated response, escalation 
 ## Technology Stack
 - **Language**: Java + Spring Boot + workflow engine + integration APIs
 - **Libraries**: Spring Boot, Camunda (workflow), integration SDKs (PagerDuty, Jira, ServiceNow)
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by incident volume and workflow complexity
 - **NFRs**: P99 incident creation < 1s, 99.9% workflow reliability, automated response < 30s
 

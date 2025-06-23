@@ -6,6 +6,9 @@ Centralized configuration management for all QuantiVista services with dynamic u
 ## Technology Stack
 - **Language**: Go + etcd + Vault integration
 - **Libraries**: etcd client, Vault API, configuration validation libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal with etcd clustering
 - **NFRs**: P99 config retrieval < 10ms, 99.99% availability, secure secret management
 

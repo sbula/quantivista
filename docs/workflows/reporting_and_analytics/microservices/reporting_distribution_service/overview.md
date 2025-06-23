@@ -5,6 +5,8 @@ Event streaming and API management for distributing reports and analytics to dow
 
 ## Technology Stack
 - **Language**: Go + Apache Kafka + gRPC + email/notification services
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Protocols**: Apache Kafka, gRPC, SMTP, WebSocket, REST
 - **Scaling**: Horizontal by distribution volume and subscriber count
 - **NFRs**: P99 distribution latency < 100ms, 99.99% delivery guarantee, multi-channel delivery

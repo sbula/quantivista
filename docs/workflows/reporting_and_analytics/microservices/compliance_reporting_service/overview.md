@@ -5,6 +5,8 @@ Automated compliance reporting for regulatory requirements including trade repor
 
 ## Technology Stack
 - **Language**: Java + Spring Boot + regulatory reporting libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Libraries**: Spring Boot, regulatory data formats, audit trail libraries
 - **Scaling**: Horizontal by regulatory jurisdiction
 - **NFRs**: P99 report generation < 5s, 100% regulatory accuracy, complete audit trails

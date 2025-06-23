@@ -6,6 +6,9 @@ ML-enhanced intelligent alerting with anomaly detection, alert correlation, nois
 ## Technology Stack
 - **Language**: Python + FastAPI + scikit-learn + TensorFlow
 - **Libraries**: FastAPI, scikit-learn, TensorFlow, Celery, Redis, notification SDKs
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by alert volume and ML model complexity
 - **NFRs**: P99 alert processing < 300ms, 99.99% notification delivery, 80%+ noise reduction
 

@@ -6,6 +6,9 @@ High-performance metrics collection from all QuantiVista services and infrastruc
 ## Technology Stack
 - **Language**: Go + Prometheus + OpenTelemetry + custom collectors
 - **Libraries**: Prometheus client, OpenTelemetry, Kubernetes API, cloud provider SDKs
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by metric volume, sharded collection
 - **NFRs**: P99 collection latency < 100ms, 1M+ metrics/sec throughput, 99.99% data integrity
 

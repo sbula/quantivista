@@ -6,6 +6,9 @@ Kubernetes, cloud, and network infrastructure monitoring with real-time state tr
 ## Technology Stack
 - **Language**: Rust + Kubernetes API + cloud provider SDKs
 - **Libraries**: kube-rs, tokio, cloud provider SDKs (AWS, GCP, Azure), network monitoring tools
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by infrastructure complexity
 - **NFRs**: P99 monitoring latency < 50ms, real-time infrastructure state tracking, 99.9% uptime
 

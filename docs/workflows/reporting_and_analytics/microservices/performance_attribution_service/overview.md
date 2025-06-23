@@ -4,8 +4,11 @@
 Specialized performance attribution analysis for reporting workflows. Provides detailed factor attribution, sector attribution, and security selection analysis with comprehensive benchmarking and peer comparison capabilities.
 
 ## Technology Stack
-- **Language**: Python + QuantLib + pandas + NumPy
-- **Libraries**: QuantLib, pandas, numpy, empyrical, pyfolio for performance analytics
+- **Language**: Python + QuantLib + Polars + NumPy
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
+- **Libraries**: QuantLib, Polars, numpy, empyrical, pyfolio for performance analytics
 - **Scaling**: Horizontal by attribution complexity
 - **NFRs**: P99 attribution calculation < 5s, comprehensive factor coverage
 

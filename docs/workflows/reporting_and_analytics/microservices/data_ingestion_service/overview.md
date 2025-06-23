@@ -4,8 +4,10 @@
 Comprehensive data ingestion from all QuantiVista workflows for reporting and analytics. Aggregates data from portfolio management, trade execution, market intelligence, and other sources into a unified analytics data lake.
 
 ## Technology Stack
-- **Language**: Python + Apache Airflow + Apache Kafka + Pandas
-- **Libraries**: Apache Airflow, Kafka, pandas, SQLAlchemy, data validation libraries
+- **Language**: Python + Apache Airflow + Apache Kafka + Polars
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **Libraries**: Apache Airflow, Kafka, Polars, SQLAlchemy, data validation libraries
 - **Scaling**: Horizontal by data source and volume
 - **NFRs**: P99 ingestion latency < 5s, 99.9% data integrity, real-time streaming support
 

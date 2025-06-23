@@ -6,6 +6,9 @@ Application-level monitoring for all QuantiVista microservices including perform
 ## Technology Stack
 - **Language**: Java + Spring Boot + Micrometer + OpenTelemetry
 - **Libraries**: Micrometer, OpenTelemetry, Jaeger, Zipkin, Spring Boot Actuator
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by service count and trace volume
 - **NFRs**: P99 trace processing < 200ms, distributed tracing coverage 100%, real-time health monitoring
 

@@ -5,6 +5,9 @@ High-performance analytics computation engine for complex financial calculations
 
 ## Technology Stack
 - **Language**: Python + Apache Spark + Dask + GPU acceleration
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Libraries**: Apache Spark, Dask, NumPy, SciPy, scikit-learn, TensorFlow
 - **Scaling**: Horizontal with Spark clusters, GPU acceleration for ML workloads
 - **NFRs**: P99 computation < 30s, support for 1TB+ datasets, distributed processing

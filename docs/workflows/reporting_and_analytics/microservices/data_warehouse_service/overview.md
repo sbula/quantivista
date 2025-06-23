@@ -5,6 +5,8 @@ Enterprise data warehouse management for historical data storage, data modeling,
 
 ## Technology Stack
 - **Language**: SQL + Python + Apache Spark + Snowflake/BigQuery
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Libraries**: Apache Spark, dbt, SQLAlchemy, data modeling frameworks
 - **Scaling**: Horizontal with cloud data warehouse scaling
 - **NFRs**: P99 query response < 10s, petabyte-scale storage, 99.9% availability

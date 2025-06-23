@@ -4,8 +4,10 @@
 Automated report generation and formatting service for financial reports, regulatory filings, and client communications. Supports multiple output formats including PDF, Excel, Word, and HTML with professional formatting and branding.
 
 ## Technology Stack
-- **Language**: Python + ReportLab + Jinja2 + pandas
-- **Libraries**: ReportLab, Jinja2, pandas, openpyxl, python-docx, WeasyPrint
+- **Language**: Python + ReportLab + Jinja2 + Polars
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **Libraries**: ReportLab, Jinja2, Polars, openpyxl, python-docx, WeasyPrint
 - **Scaling**: Horizontal by report complexity
 - **NFRs**: P99 report generation < 30s, professional formatting, multi-format support
 

@@ -4,8 +4,11 @@
 Comprehensive risk reporting and analysis for regulatory compliance and internal risk management. Generates VaR reports, stress testing results, concentration reports, and regulatory risk disclosures.
 
 ## Technology Stack
-- **Language**: Python + pandas + NumPy + risk modeling libraries
-- **Libraries**: pandas, numpy, scipy, risk management libraries, regulatory reporting tools
+- **Language**: Python + Polars + NumPy + risk modeling libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
+- **Libraries**: Polars, numpy, scipy, risk management libraries, regulatory reporting tools
 - **Scaling**: Horizontal by report complexity
 - **NFRs**: P99 report generation < 10s, regulatory compliance accuracy 100%
 

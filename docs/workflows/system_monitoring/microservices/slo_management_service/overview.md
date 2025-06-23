@@ -6,6 +6,9 @@ Service Level Objective (SLO) definition, tracking, and management with error bu
 ## Technology Stack
 - **Language**: Go + Prometheus + time-series analysis libraries
 - **Libraries**: Prometheus client, time-series analysis, statistical libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by SLO complexity and service count
 - **NFRs**: P99 SLO calculation < 100ms, real-time error budget tracking, 99.9% accuracy
 

@@ -5,6 +5,8 @@ Interactive data visualization and charting service for financial analytics. Gen
 
 ## Technology Stack
 - **Language**: Node.js + TypeScript + D3.js + React
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Libraries**: D3.js, Chart.js, Plotly.js, React, Express.js
 - **Scaling**: Horizontal by visualization complexity, CDN for static assets
 - **NFRs**: P99 chart generation < 2s, interactive real-time updates, mobile responsive
