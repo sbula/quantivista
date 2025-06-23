@@ -6,6 +6,9 @@ Efficient correlation computation with cluster-based optimization. Implements tw
 ## Technology Stack
 - **Language**: Rust + nalgebra + rayon + Apache Arrow
 - **Libraries**: nalgebra (linear algebra), rayon (parallelism), polars (data processing)
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by correlation timeframes, optimized for cluster-based computation
 - **NFRs**: Daily full matrix < 10 minutes for 10K instruments, real-time cluster updates < 100ms
 

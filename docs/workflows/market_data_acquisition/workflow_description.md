@@ -87,11 +87,11 @@ Acquire, normalize, and distribute high-quality market data from multiple source
 - Schema enforcement and evolution
 
 ### 3. Quality Assurance Service
-**Technology**: Python
+**Technology**: Python + Polars + JAX
 **Purpose**: Comprehensive data quality validation and monitoring
 **Responsibilities**:
-- Statistical outlier detection
-- Cross-provider data validation
+- Statistical outlier detection (enhanced with JAX)
+- Cross-provider data validation (using Polars)
 - Missing data identification and handling
 - Latency monitoring and alerting
 - Data completeness assessment
@@ -127,10 +127,11 @@ Acquire, normalize, and distribute high-quality market data from multiple source
 - SLA monitoring and reporting
 
 ### 7. Data Storage Service
-**Technology**: Go
+**Technology**: Go + TimescaleDB + DuckDB
 **Purpose**: Efficient data storage and retrieval
 **Responsibilities**:
-- Time-series data storage (InfluxDB)
+- Time-series data storage (TimescaleDB)
+- Complex analytical queries (DuckDB)
 - Historical data archival
 - Data compression and optimization
 - Query optimization and caching
@@ -158,11 +159,14 @@ Acquire, normalize, and distribute high-quality market data from multiple source
 - **REST APIs**: Configuration and control interfaces
 - **gRPC**: High-performance internal communication
 
-### Data Storage
-- **InfluxDB**: Time-series market data storage
+### Data Storage & Technology Stack
+- **TimescaleDB**: Time-series market data storage (replacing InfluxDB)
 - **Redis**: Real-time data caching and distribution
 - **PostgreSQL**: Metadata and configuration storage
 - **Apache Pulsar**: Event streaming and message persistence
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms (where applicable)
 
 ## Service Level Objectives
 

@@ -6,6 +6,9 @@ Real-time risk metric computation including VaR, volatility, drawdown analysis, 
 ## Technology Stack
 - **Language**: Python + NumPy + SciPy + JAX for GPU acceleration
 - **Libraries**: NumPy, SciPy, JAX, pandas, arch (GARCH models)
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by instrument groups, GPU acceleration for complex calculations
 - **NFRs**: P99 computation latency < 200ms, 99.9% calculation accuracy
 

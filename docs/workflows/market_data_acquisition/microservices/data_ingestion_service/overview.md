@@ -6,6 +6,7 @@ Provider-specific data collection with optimized protocols for real-time market 
 ## Technology Stack
 - **Language**: Rust + Tokio for async I/O
 - **Protocols**: WebSocket, REST, FIX, provider-specific SDKs
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
 - **Scaling**: Horizontal by provider, vertical by throughput
 - **NFRs**: P99 ingestion latency < 50ms, 99.9% uptime per provider
 

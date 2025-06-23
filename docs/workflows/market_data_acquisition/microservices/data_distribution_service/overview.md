@@ -6,6 +6,7 @@ High-performance event streaming and API management for distributing normalized 
 ## Technology Stack
 - **Language**: Go + Apache Pulsar + gRPC for high-performance streaming
 - **Protocols**: Apache Pulsar, gRPC, WebSocket, REST
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
 - **Scaling**: Horizontal by topic partitions and consumer groups
 - **NFRs**: P99 distribution latency < 25ms, 99.99% delivery guarantee, 2M+ events/sec throughput
 

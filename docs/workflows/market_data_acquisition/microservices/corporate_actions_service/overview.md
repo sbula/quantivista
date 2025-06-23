@@ -6,6 +6,8 @@ Corporate actions data collection, processing, and distribution. Handles dividen
 ## Technology Stack
 - **Language**: Python + FastAPI + pandas + financial data libraries
 - **Libraries**: FastAPI, pandas, numpy, financial data processing libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by corporate action complexity
 - **NFRs**: P99 processing < 2s, 99.9% data accuracy, comprehensive event coverage
 

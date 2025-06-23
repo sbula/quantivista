@@ -6,6 +6,9 @@ Multi-dimensional instrument clustering with dynamic re-clustering for correlati
 ## Technology Stack
 - **Language**: Python + scikit-learn + JAX + NetworkX
 - **Libraries**: scikit-learn, UMAP, HDBSCAN, NetworkX, JAX for GPU acceleration
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by clustering algorithms, GPU acceleration for large datasets
 - **NFRs**: P99 clustering latency < 30s for 10K instruments, silhouette score > 0.7
 

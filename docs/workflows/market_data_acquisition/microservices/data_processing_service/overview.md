@@ -6,6 +6,8 @@ High-performance normalization, standardization, and enrichment of validated mar
 ## Technology Stack
 - **Language**: Rust + Polars + Apache Arrow for high-performance data processing
 - **Libraries**: Polars for DataFrame operations, Arrow for zero-copy data transfer
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by data volume, vertical for CPU-intensive operations
 - **NFRs**: P99 processing latency < 75ms, throughput > 1M events/sec
 

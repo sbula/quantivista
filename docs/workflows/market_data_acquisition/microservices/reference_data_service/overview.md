@@ -6,6 +6,8 @@ Centralized reference data management for all financial instruments, sectors, cu
 ## Technology Stack
 - **Language**: Java + Spring Boot + PostgreSQL + Redis caching
 - **Libraries**: Spring Boot, JPA, Redis, data validation libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by data volume, heavy caching
 - **NFRs**: P99 lookup < 10ms, 99.99% data accuracy, comprehensive coverage
 

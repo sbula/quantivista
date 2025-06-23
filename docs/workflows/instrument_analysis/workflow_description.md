@@ -159,11 +159,14 @@ Analyze individual instruments and their relationships to provide technical insi
 - **Cross-Asset**: Equity, bond, commodity, and currency correlations
 - **Real-Time Updates**: Incremental correlation updates
 
-### Data Storage
-- **Time-Series Database**: InfluxDB for indicator and price data
+### Data Storage & Technology Stack
+- **Time-Series Database**: TimescaleDB for indicator and price data
 - **Correlation Cache**: Redis for real-time correlation matrices
 - **Pattern Database**: PostgreSQL for pattern detection results
 - **Alternative Data**: MongoDB for unstructured alternative datasets
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 
 ## Service Level Objectives
 

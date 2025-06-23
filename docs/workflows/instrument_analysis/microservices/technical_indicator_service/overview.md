@@ -6,6 +6,9 @@ High-performance real-time technical indicator computation with SIMD optimizatio
 ## Technology Stack
 - **Language**: Rust + RustQuant + TA-Lib + SIMD optimizations
 - **Libraries**: rayon (parallelism), nalgebra (linear algebra), serde (serialization)
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by instrument groups, vertical for computation intensity
 - **NFRs**: P99 computation latency < 50ms, throughput > 100K indicators/sec, 99.99% accuracy
 

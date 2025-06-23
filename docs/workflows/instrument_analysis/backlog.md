@@ -282,6 +282,15 @@ This backlog contains prioritized features for implementing the Instrument Analy
 
 ## Implementation Guidelines
 
+### Technology Stack
+- **Languages**: Rust (performance-critical analysis), Python (ML/analytics), Go (infrastructure)
+- **Data Processing**: Polars (high-performance data manipulation, 5-10x faster than pandas)
+- **Analytics**: DuckDB (complex analytical queries and aggregations)
+- **ML Framework**: JAX (custom optimization algorithms and advanced models)
+- **Databases**: TimescaleDB (time-series), PostgreSQL (metadata), Redis (caching)
+- **Message Broker**: Apache Pulsar for event streaming
+- **Monitoring**: Prometheus + Grafana + Jaeger (distributed tracing)
+
 ### Development Approach
 - **Agile Methodology**: 2-week sprints
 - **Test-Driven Development**: Unit tests for all components

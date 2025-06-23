@@ -6,6 +6,9 @@ Synchronized multi-timeframe technical analysis with trend alignment detection. 
 ## Technology Stack
 - **Language**: Python + NumPy + Pandas + asyncio
 - **Libraries**: pandas, numpy, scipy, asyncio for concurrent processing
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by instrument groups, parallel timeframe processing
 - **NFRs**: P99 analysis latency < 2s for 6 timeframes, 95% trend alignment accuracy
 

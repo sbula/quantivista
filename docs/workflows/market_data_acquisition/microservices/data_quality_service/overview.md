@@ -6,6 +6,8 @@ Centralized quality assurance and validation for all ingested market data. Perfo
 ## Technology Stack
 - **Language**: Python + asyncio for concurrent processing
 - **Libraries**: Pandas, NumPy, scikit-learn for anomaly detection
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by instrument groups
 - **NFRs**: P99 validation latency < 100ms, 99.99% accuracy in anomaly detection
 

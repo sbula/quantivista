@@ -6,6 +6,8 @@ Comprehensive benchmark and index data management for performance attribution, r
 ## Technology Stack
 - **Language**: Python + FastAPI + TimescaleDB + pandas
 - **Libraries**: FastAPI, pandas, numpy, TimescaleDB connector, financial libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by benchmark complexity and historical data volume
 - **NFRs**: P99 benchmark query < 200ms, comprehensive index coverage, daily updates
 

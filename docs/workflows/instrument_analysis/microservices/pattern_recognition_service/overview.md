@@ -6,6 +6,9 @@ Chart pattern detection and candlestick pattern recognition using computer visio
 ## Technology Stack
 - **Language**: Python + OpenCV + TensorFlow + scikit-image
 - **Libraries**: OpenCV, TensorFlow, scikit-image, TA-Lib, custom pattern libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by pattern complexity, GPU acceleration for ML models
 - **NFRs**: P99 pattern detection < 1s, 90% pattern recognition accuracy
 

@@ -6,6 +6,8 @@ External-facing API gateway providing secure, rate-limited access to market data
 ## Technology Stack
 - **Language**: Go + Gin + Redis for high-performance API serving
 - **Security**: JWT authentication, OAuth2, API key management
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
 - **Scaling**: Horizontal with load balancing and API gateway patterns
 - **NFRs**: P99 API response < 100ms, 99.9% uptime, 10K+ concurrent requests
 
