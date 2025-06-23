@@ -5,7 +5,10 @@ Portfolio cash flow management, liquidity optimization, and cash allocation acro
 
 ## Technology Stack
 - **Language**: Python + FastAPI + PostgreSQL + Redis
-- **Libraries**: FastAPI, SQLAlchemy, pandas, cash flow optimization libraries
+- **Libraries**: FastAPI, SQLAlchemy, cash flow optimization libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by portfolio groups
 - **NFRs**: P99 cash operation < 100ms, 100% cash reconciliation accuracy
 

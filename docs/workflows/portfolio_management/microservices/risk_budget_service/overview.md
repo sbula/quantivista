@@ -5,7 +5,10 @@ Portfolio risk budget allocation and monitoring across strategies, sectors, and 
 
 ## Technology Stack
 - **Language**: Python + NumPy + SciPy + risk modeling libraries
-- **Libraries**: NumPy, SciPy, pandas, risk management libraries
+- **Libraries**: NumPy, SciPy, risk management libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by risk calculation complexity
 - **NFRs**: P99 risk calculation < 500ms, accurate risk budgeting
 

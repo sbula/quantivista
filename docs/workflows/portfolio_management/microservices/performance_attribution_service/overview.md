@@ -4,8 +4,11 @@
 Multi-level performance analysis and attribution across portfolio, strategy, sector, and security levels. Provides comprehensive factor attribution, risk-adjusted performance metrics, and benchmark comparison analysis.
 
 ## Technology Stack
-- **Language**: Python + Pandas + NumPy + QuantLib + performance analytics libraries
-- **Libraries**: pandas, numpy, QuantLib, pyfolio, empyrical for performance analysis
+- **Language**: Python + NumPy + QuantLib + performance analytics libraries
+- **Libraries**: numpy, QuantLib, pyfolio, empyrical for performance analysis
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by attribution complexity
 - **NFRs**: P99 attribution calculation < 2s, accurate factor attribution, comprehensive analysis
 

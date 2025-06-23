@@ -5,7 +5,10 @@ Portfolio rebalancing trigger generation and execution coordination. Monitors po
 
 ## Technology Stack
 - **Language**: Python + NumPy + SciPy + optimization libraries
-- **Libraries**: NumPy, SciPy, pandas, optimization libraries
+- **Libraries**: NumPy, SciPy, optimization libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by portfolio complexity
 - **NFRs**: P99 rebalancing analysis < 1s, optimal rebalancing decisions
 

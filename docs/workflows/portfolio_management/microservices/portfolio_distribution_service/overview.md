@@ -6,6 +6,9 @@ Event streaming and API management for distributing portfolio management data to
 ## Technology Stack
 - **Language**: Go + Apache Pulsar + gRPC
 - **Protocols**: Apache Pulsar, gRPC, WebSocket, REST
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by topic partitions and consumer groups
 - **NFRs**: P99 distribution latency < 15ms, 99.99% delivery guarantee, 100K+ events/sec
 

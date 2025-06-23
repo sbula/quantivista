@@ -5,7 +5,10 @@ Portfolio-level strategy optimization and allocation using modern portfolio theo
 
 ## Technology Stack
 - **Language**: Python + PyPortfolioOpt + cvxpy + NumPy + SciPy
-- **Libraries**: PyPortfolioOpt, cvxpy, NumPy, SciPy, pandas for optimization
+- **Libraries**: PyPortfolioOpt, cvxpy, NumPy, SciPy for optimization
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by optimization complexity
 - **NFRs**: P99 optimization < 5s, optimal allocation quality, multi-objective optimization
 

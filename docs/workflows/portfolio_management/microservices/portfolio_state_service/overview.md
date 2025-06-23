@@ -6,6 +6,9 @@ Real-time portfolio state management and position tracking. Maintains current po
 ## Technology Stack
 - **Language**: Go + PostgreSQL + Redis for high-performance state management
 - **Libraries**: Go standard library, database drivers, caching libraries
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by portfolio sharding, vertical for state complexity
 - **NFRs**: P99 state query < 10ms, 99.99% data consistency, real-time updates
 
