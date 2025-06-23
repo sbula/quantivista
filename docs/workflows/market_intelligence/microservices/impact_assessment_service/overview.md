@@ -6,6 +6,9 @@ Market impact prediction and correlation analysis for news events, social media 
 ## Technology Stack
 - **Language**: Python + scikit-learn + XGBoost + time series analysis
 - **Models**: Impact prediction, correlation analysis, event classification
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by analysis complexity
 - **NFRs**: P99 assessment latency < 1s, 85% impact prediction accuracy
 

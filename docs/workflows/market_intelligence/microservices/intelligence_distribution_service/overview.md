@@ -6,6 +6,8 @@ Event streaming and API management for distributing processed intelligence data 
 ## Technology Stack
 - **Language**: Go + Apache Kafka + gRPC for intelligence distribution
 - **Protocols**: Apache Kafka, gRPC, WebSocket, REST
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by topic partitions and consumer groups
 - **NFRs**: P99 distribution latency < 50ms, 99.99% delivery guarantee, 500K+ events/sec
 

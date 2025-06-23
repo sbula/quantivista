@@ -6,6 +6,9 @@ Advanced financial content analysis for market intelligence extraction. Performs
 ## Technology Stack
 - **Language**: Python + spaCy + Transformers + NLTK
 - **Libraries**: spaCy, Transformers, NLTK, scikit-learn, Gensim
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by text processing volume, GPU acceleration
 - **NFRs**: P99 processing < 500ms, 95% financial content analysis accuracy, multi-language support
 

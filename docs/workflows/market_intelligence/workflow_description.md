@@ -69,8 +69,8 @@ Transform unstructured market information from news, social media, and alternati
 
 ## Microservices Architecture
 
-### 1. News Ingestion Service
-**Technology**: Python
+### 1. News Aggregation Service
+**Technology**: Python + asyncio + feedparser
 **Purpose**: Real-time news collection and preprocessing
 **Responsibilities**:
 - Multi-source news feed aggregation
@@ -79,18 +79,8 @@ Transform unstructured market information from news, social media, and alternati
 - Real-time news stream processing
 - Content quality filtering
 
-### 2. Sentiment Analysis Service
-**Technology**: Python
-**Purpose**: Advanced NLP-based sentiment analysis
-**Responsibilities**:
-- Financial sentiment analysis using FinBERT
-- Multi-language sentiment processing
-- Entity extraction and sentiment attribution
-- Sentiment confidence scoring
-- Historical sentiment tracking
-
-### 3. Social Media Monitoring Service
-**Technology**: Python
+### 2. Social Media Monitoring Service
+**Technology**: Python + asyncio + social media APIs
 **Purpose**: Social media sentiment and trend analysis
 **Responsibilities**:
 - Twitter/X sentiment analysis and trending
@@ -99,8 +89,48 @@ Transform unstructured market information from news, social media, and alternati
 - Influencer impact assessment
 - Viral content detection
 
-### 4. Impact Assessment Service
-**Technology**: Python
+### 3. Content Quality Service
+**Technology**: Python + scikit-learn + NetworkX + spaCy
+**Purpose**: Content quality assessment and validation
+**Responsibilities**:
+- Spam detection and bot identification
+- Source credibility assessment
+- Multi-tier quality classification
+- Coordinated manipulation detection
+- Dynamic source reliability tracking
+
+### 4. Entity Extraction Service
+**Technology**: Python + spaCy + Transformers + custom NER models
+**Purpose**: Financial entity recognition and extraction
+**Responsibilities**:
+- Company names and ticker symbol identification
+- Financial instruments and metrics extraction
+- Economic indicators recognition
+- Entity normalization and mapping
+- Multi-language entity support
+
+### 5. Sentiment Analysis Service
+**Technology**: Python + Transformers + spaCy + FinBERT
+**Purpose**: Advanced NLP-based sentiment analysis
+**Responsibilities**:
+- Financial sentiment analysis using FinBERT
+- Multi-language sentiment processing
+- Entity-specific sentiment attribution
+- Sentiment confidence scoring
+- Historical sentiment tracking
+
+### 6. Financial Content Analysis Service
+**Technology**: Python + spaCy + Transformers + NLTK
+**Purpose**: Advanced financial content analysis and NLP processing
+**Responsibilities**:
+- Text preprocessing and tokenization
+- Named entity recognition for financial entities
+- Topic modeling and semantic analysis
+- Keyword extraction and language detection
+- Multi-language financial content processing
+
+### 7. Impact Assessment Service
+**Technology**: Python + scikit-learn + XGBoost + time series analysis
 **Purpose**: Quantitative market impact analysis
 **Responsibilities**:
 - News-to-price impact modeling
@@ -109,35 +139,15 @@ Transform unstructured market information from news, social media, and alternati
 - Market reaction prediction
 - Impact confidence scoring
 
-### 5. Alternative Data Service
-**Technology**: Go
-**Purpose**: Alternative data integration and processing
+### 8. Intelligence Distribution Service
+**Technology**: Go + Apache Kafka + gRPC
+**Purpose**: Intelligence data distribution and API management
 **Responsibilities**:
-- ESG data normalization and scoring
-- Satellite data processing (economic activity)
-- Earnings transcript analysis
-- Economic indicator integration
-- Alternative data quality assessment
-
-### 6. Intelligence Synthesis Service
-**Technology**: Python
-**Purpose**: Comprehensive intelligence synthesis and distribution
-**Responsibilities**:
-- Multi-source intelligence aggregation
-- Conflict resolution and consensus building
-- Intelligence confidence scoring
+- Event streaming and topic management
+- Subscription management for downstream workflows
 - Real-time intelligence distribution
-- Historical intelligence tracking
-
-### 7. Quality Assurance Service
-**Technology**: Go
-**Purpose**: Data quality monitoring and validation
-**Responsibilities**:
-- Source reliability scoring
-- Content quality assessment
-- Bias detection and correction
-- Data freshness monitoring
-- Quality metrics reporting
+- API gateway for intelligence access
+- Performance monitoring and scaling
 
 ## Key Integration Points
 
@@ -163,10 +173,12 @@ Transform unstructured market information from news, social media, and alternati
 - **Impact Models**: News-to-price impact prediction models
 
 ### Data Storage
-- **News Database**: PostgreSQL for structured news data
-- **Sentiment Cache**: Redis for real-time sentiment scores
-- **Analytics Store**: ClickHouse for historical sentiment analytics
-- **Document Store**: MongoDB for unstructured content
+- **Command Side**: PostgreSQL for configuration, rules, and metadata
+- **Query Side**: TimescaleDB for time-series intelligence data and analytics
+- **Search Engine**: Elasticsearch for content indexing and full-text search
+- **Caching**: Redis for real-time sentiment scores and content deduplication
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 
 ## Service Level Objectives
 

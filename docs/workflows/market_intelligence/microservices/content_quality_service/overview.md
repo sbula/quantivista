@@ -6,6 +6,9 @@ Spam detection, bot identification, and source credibility assessment for all co
 ## Technology Stack
 - **Language**: Python + scikit-learn + NetworkX + spaCy
 - **ML Models**: Bot detection, spam classification, credibility scoring
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by content volume
 - **NFRs**: P99 quality assessment < 500ms, 99.95% spam detection accuracy
 

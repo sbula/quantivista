@@ -6,6 +6,8 @@ RSS feed monitoring and free news source aggregation for financial news, earning
 ## Technology Stack
 - **Language**: Python + asyncio for concurrent processing
 - **Libraries**: feedparser, BeautifulSoup, Scrapy, aiohttp, newspaper3k
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by source groups
 - **NFRs**: P99 processing latency < 5s, 99.9% uptime, handle 1K articles/hour
 

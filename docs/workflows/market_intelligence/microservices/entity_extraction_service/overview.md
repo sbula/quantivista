@@ -6,6 +6,9 @@ Financial entity recognition and extraction from text content, including company
 ## Technology Stack
 - **Language**: Python + spaCy + Transformers + custom NER models
 - **Models**: FinNER, custom financial entity models, fuzzy matching
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by content volume
 - **NFRs**: P99 extraction latency < 150ms, 95% entity recognition accuracy
 

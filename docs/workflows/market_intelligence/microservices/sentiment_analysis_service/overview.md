@@ -6,6 +6,9 @@ Financial sentiment analysis using domain-specific models, multi-language suppor
 ## Technology Stack
 - **Language**: Python + Transformers + spaCy + VADER
 - **Models**: FinBERT, custom financial sentiment models
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by content volume, GPU acceleration
 - **NFRs**: P99 analysis latency < 200ms, 95% sentiment accuracy
 

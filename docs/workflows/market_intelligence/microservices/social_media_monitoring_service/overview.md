@@ -6,6 +6,8 @@ Real-time social media content ingestion with platform-specific optimizations. M
 ## Technology Stack
 - **Language**: Python + asyncio for concurrent processing
 - **Libraries**: Tweepy (Twitter), PRAW (Reddit), discord.py, aiohttp
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
 - **Scaling**: Horizontal by platform, rate-limited by API quotas
 - **NFRs**: P99 ingestion latency < 2s, 99.5% uptime, handle 10K posts/minute
 
