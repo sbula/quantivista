@@ -1,4 +1,4 @@
-# Model Training Service
+# Prediction Model Learning Service
 
 ## Responsibility
 Automated machine learning model training and retraining pipeline with feature selection, cross-validation, hyperparameter optimization, model selection, ensemble optimization, and production model deployment capabilities.
@@ -6,6 +6,9 @@ Automated machine learning model training and retraining pipeline with feature s
 ## Technology Stack
 - **Language**: Python + MLflow + Optuna + Kubernetes + Apache Airflow
 - **Libraries**: Scikit-learn, XGBoost, LightGBM, TensorFlow, PyTorch, MLflow, Optuna
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by training job volume, model type partitioning
 - **NFRs**: Training completion < 4h, 95% training success rate, automated deployment capability
 

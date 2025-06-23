@@ -6,6 +6,9 @@ Prediction quality monitoring and validation with confidence assessment, quality
 ## Technology Stack
 - **Language**: Python + FastAPI + Pandas + Scikit-learn + Redis
 - **Libraries**: Pandas, NumPy, Scikit-learn, SciPy, Redis client, Apache Pulsar client
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by quality check volume, prediction type partitioning
 - **NFRs**: P99 quality check latency < 500ms, 5K+ quality checks/sec, 95% quality detection accuracy
 

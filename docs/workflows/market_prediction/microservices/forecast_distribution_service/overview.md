@@ -1,4 +1,4 @@
-# Prediction Cache Service
+# Forecast Distribution Service
 
 ## Responsibility
 High-performance prediction caching and distribution with multi-timeframe prediction management, cache invalidation, prediction versioning, and low-latency prediction serving for real-time trading applications.
@@ -6,6 +6,9 @@ High-performance prediction caching and distribution with multi-timeframe predic
 ## Technology Stack
 - **Language**: Go + Redis + Apache Pulsar + Prometheus
 - **Libraries**: Go-Redis, Pulsar client, Prometheus client, JSON serialization
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by cache volume, prediction type partitioning
 - **NFRs**: P99 cache latency < 10ms, 50K+ cache ops/sec throughput, 99.9% cache availability
 

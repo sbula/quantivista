@@ -1,4 +1,4 @@
-# Instrument Evaluation Service
+# Investment Rating Service
 
 ## Responsibility
 Generate comprehensive instrument evaluations and investment ratings by synthesizing multi-timeframe predictions into actionable investment recommendations with confidence scoring and technical confirmation integration.
@@ -6,6 +6,9 @@ Generate comprehensive instrument evaluations and investment ratings by synthesi
 ## Technology Stack
 - **Language**: Python + FastAPI + Pandas + NumPy + Redis
 - **Libraries**: Pandas, NumPy, Scikit-learn, Redis client, Apache Pulsar client
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by instrument volume, rating type partitioning
 - **NFRs**: P99 evaluation latency < 1s, 2K+ evaluations/sec throughput, 80% rating confidence
 

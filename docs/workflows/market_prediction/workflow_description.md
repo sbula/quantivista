@@ -69,8 +69,8 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 
 ## Microservices Architecture
 
-### 1. Trading Indicator Synthesis Service
-**Technology**: Python
+### 1. Market Signal Intelligence Service
+**Technology**: Python + FastAPI + Pandas + NumPy + Redis
 **Purpose**: Synthesize normalized indicators and sentiment into ML-ready trading signals with quality weighting
 **Responsibilities**:
 - Synthesize technical indicators, sentiment, and market data into trading signals
@@ -80,7 +80,7 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - Cross-asset signal engineering
 
 ### 2. Market Prediction Engine Service
-**Technology**: Python
+**Technology**: Python + FastAPI + Scikit-learn + XGBoost + LightGBM + MLflow
 **Purpose**: Transform engineered features into market predictions using ensemble ML models
 **Responsibilities**:
 - Ensemble model management (XGBoost, LightGBM, Neural Networks)
@@ -89,8 +89,8 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - Hyperparameter optimization
 - Online learning and model updates
 
-### 3. Instrument Evaluation Service
-**Technology**: Python
+### 3. Investment Rating Service
+**Technology**: Python + FastAPI + Scikit-learn + Pandas + NumPy
 **Purpose**: Generate comprehensive instrument evaluations and ratings
 **Responsibilities**:
 - Multi-timeframe rating synthesis
@@ -99,8 +99,8 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - Rating consistency validation
 - Investment recommendation generation
 
-### 4. Model Performance Service
-**Technology**: Python
+### 4. Prediction Quality Monitor Service
+**Technology**: Python + FastAPI + MLflow + Prometheus + Grafana
 **Purpose**: Continuous model monitoring and performance validation
 **Responsibilities**:
 - Real-time model performance tracking
@@ -109,8 +109,8 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - A/B testing framework
 - Performance attribution analysis
 
-### 5. Prediction Cache Service
-**Technology**: Go
+### 5. Forecast Distribution Service
+**Technology**: Go + Redis + Apache Kafka + gRPC
 **Purpose**: High-performance prediction caching and distribution
 **Responsibilities**:
 - Real-time prediction caching
@@ -119,8 +119,8 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - Prediction versioning
 - Low-latency prediction serving
 
-### 6. Model Training Service
-**Technology**: Python
+### 6. Prediction Model Learning Service
+**Technology**: Python + MLflow + Optuna + Scikit-learn + XGBoost + LightGBM
 **Purpose**: Automated model training and retraining pipeline
 **Responsibilities**:
 - Automated feature selection
@@ -130,7 +130,7 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - Production model deployment
 
 ### 7. Quality Assurance Service
-**Technology**: Python
+**Technology**: Python + FastAPI + Scikit-learn + Pandas + NumPy
 **Purpose**: Prediction quality monitoring and validation
 **Responsibilities**:
 - Prediction confidence assessment
@@ -163,9 +163,13 @@ Generate high-quality, multi-timeframe instrument evaluations and market predict
 - **Quality Scores**: Prediction reliability and confidence metrics
 
 ### Data Storage
-- **Feature Store**: Redis for real-time feature serving
+- **Command Side**: PostgreSQL for model configurations, training jobs, and metadata
+- **Query Side**: TimescaleDB for time-series prediction data and performance analytics
+- **Feature Store**: Redis for real-time feature serving and prediction caching
 - **Model Registry**: MLflow for model versioning and management
-- **Prediction Database**: ClickHouse for prediction history and analytics
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Training Data**: S3/MinIO for large-scale training datasets
 
 ## Service Level Objectives

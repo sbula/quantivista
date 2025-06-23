@@ -6,6 +6,9 @@ Transform synthesized trading signals into market predictions using ensemble mac
 ## Technology Stack
 - **Language**: Python + FastAPI + Scikit-learn + XGBoost + LightGBM + MLflow
 - **Libraries**: XGBoost, LightGBM, TensorFlow, PyTorch, MLflow, Redis client
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by prediction volume, model type partitioning
 - **NFRs**: P99 prediction latency < 500ms, 5K+ predictions/sec throughput, 70% directional accuracy
 

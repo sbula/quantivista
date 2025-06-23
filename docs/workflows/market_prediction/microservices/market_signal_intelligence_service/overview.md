@@ -1,4 +1,4 @@
-# Trading Indicator Synthesis Service
+# Market Signal Intelligence Service
 
 ## Responsibility
 Synthesize normalized technical indicators, sentiment analysis, and market data into ML-ready trading signals with quality weighting. Combines multiple processed data sources into high-quality trading indicators for machine learning prediction models.
@@ -6,6 +6,9 @@ Synthesize normalized technical indicators, sentiment analysis, and market data 
 ## Technology Stack
 - **Language**: Python + FastAPI + Pandas + NumPy + Redis
 - **Libraries**: Pandas, NumPy, Scikit-learn, Redis client, Apache Pulsar client
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by instrument volume, signal type partitioning
 - **NFRs**: P99 synthesis latency < 200ms, 10K+ signals/sec throughput, 99.9% signal quality
 

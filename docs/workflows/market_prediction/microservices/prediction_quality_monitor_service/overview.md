@@ -1,4 +1,4 @@
-# Model Performance Service
+# Prediction Quality Monitor Service
 
 ## Responsibility
 Continuous monitoring and validation of machine learning model performance with real-time tracking, drift detection, A/B testing framework, and automated performance attribution analysis for prediction quality assurance.
@@ -6,6 +6,9 @@ Continuous monitoring and validation of machine learning model performance with 
 ## Technology Stack
 - **Language**: Python + FastAPI + Pandas + Scikit-learn + MLflow
 - **Libraries**: Pandas, NumPy, Scikit-learn, MLflow, Redis client, Apache Pulsar client
+- **Data Processing**: Polars for high-performance data manipulation (5-10x faster than pandas)
+- **Analytics**: DuckDB for complex analytical queries and aggregations
+- **ML Framework**: JAX for custom optimization algorithms and advanced models
 - **Scaling**: Horizontal by model volume, performance metric partitioning
 - **NFRs**: P99 analysis latency < 2s, 1K+ performance updates/sec, 95% drift detection accuracy
 
